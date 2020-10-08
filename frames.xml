@@ -1,0 +1,78 @@
+<!--
+  This file is part of centurio.work/wiz.
+
+  centurio.work/wiz is free software: you can redistribute it and/or modify it
+  under the terms of the GNU General Public License as published by the Free
+  Software Foundation, either version 3 of the License, or (at your option) any
+  later version.
+
+  centurio.work/wiz is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+  more details.
+
+  You should have received a copy of the GNU General Public License along with
+  centurio.work/wiz (file LICENSE in the main directory). If not, see
+  <http://www.gnu.org/licenses/>.
+-->
+
+<description xmlns="http://riddl.org/ns/description/1.0" xmlns:ann="http://riddl.org/ns/annotation/1.0" xmlns:xi="http://www.w3.org/2001/XInclude" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <message name="input">
+    <parameter name="style_url" type="string"/>
+    <parameter name="document_url" type="string"/>
+    <optional>
+      <parameter name="info" type="string"/>
+    </optional>
+  </message>
+  <message name="ui">
+    <parameter name="ui" mimetype="text/html"/>
+  </message>
+  <message name="callback">
+    <header name="CPEE-CALLBACK" type="boolean"/>
+  </message>
+  <message name="url">
+    <parameter name="url" mimetype="text/plain"/>
+  </message>
+  <message name="langs">
+    <parameter name="langs" mimetype="*/xml">
+      <xi:include href="rngs/langs.rng"/>
+    </parameter>
+  </message>
+  <message name="opa">
+    <parameter name="op" fixed="error"/>
+    <parameter name="reason" type="string"/>
+  </message>
+  <message name="opb">
+    <parameter name="op" fixed="result"/>
+    <parameter name="value" mimetype="application/json"/>
+  </message>
+  <message name="json">
+    <parameter name="value" mimetype="application/json"/>
+  </message>
+
+  <resource>
+    <resource>
+      <get out="ui"/>
+      <put in='input' out="callback"/>
+      <delete in='opa'/>
+      <delete in='opb'/>
+      <resource relative='sse'>
+        <sse/>
+      </resource>
+      <resource relative="languages">
+        <get out="langs"/>
+      </resource>
+      <resource relative="style.url">
+        <get out="url"/>
+      </resource>
+      <resource relative="documents">
+        <resource relative="[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*">
+            <get out="url"/>
+        </resource>
+      </resource>
+      <resource relative="info.json">
+        <get out="json"/>
+      </resource>
+    </resource>
+  </resource>
+</description>

@@ -1,0 +1,226 @@
+#!/usr/bin/ruby
+#
+# This file is part of centurio.work/ing/commands.
+#
+# centurio.work/ing/commands is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or (at your
+# option) any later version.
+#
+# centurio.work/ing/commands is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
+# Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# centurio.work/ing/commands (file COPYING in the main directory). If not, see
+# <http://www.gnu.org/licenses/>.
+
+require 'rubygems'
+require 'json'
+require 'xml/smart'
+require 'riddl/server'
+require 'fileutils'
+require 'typhoeus'
+
+class Get < Riddl::Implementation
+  def response
+    Riddl::Parameter::Complex.new('ui','text/html',File.open(File.join(__dir__,'template','template.html')))
+  end
+end
+
+class Put < Riddl::Implementation
+  def response
+    Dir.mkdir(File.join('data',@r.last)) rescue nil
+    File.write(File.join('data',@r.last,'num'),@p[0].value)
+    File.write(File.join('data',@r.last,'total'),@p[1].value)
+    File.write(File.join('data',@r.last,'style.url'),@p[2].value)
+
+    image = Typhoeus.get(@p[3].value).response_body rescue '<image/>'
+    File.write(File.join('data',@r.last,'image.xml'),image)
+
+    if @p[4]&.name == 'errors_url'
+      errors = Typhoeus.get(@p[4].value).response_body rescue '<reasons/>'
+      File.write(File.join('data',@r.last,'errors.xml'),errors)
+    end
+    if @p[4]&.name == 'info'
+      File.write(File.join('data',@r.last,'info.json'),@p[4].value)
+    end
+    if @p[5]&.name == 'info'
+      File.write(File.join('data',@r.last,'info.json'),@p[5].value)
+    end
+
+    File.write(File.join('data',@r.last,'callback'),@h['CPEE_CALLBACK'])
+
+    @a[0].send('new')
+    nil
+  end
+
+  def headers
+    Riddl::Header.new('CPEE-CALLBACK', 'true')
+  end
+end
+class Delete < Riddl::Implementation
+  def response
+    if cbu = File.read(File.join('data',@r.last,'callback'))
+      send = { 'operation' => @p[0].value }
+      case send['operation']
+        when 'jump'
+          send['target'] = @p[1].value
+        when 'error'
+          send['reason'] = @p[1].value
+      end
+      cbu += '/' unless cbu[-1] == '/'
+
+      Typhoeus.put(cbu, body: JSON::generate(send), headers: { 'content-type' => 'application/json'})
+    end
+
+    File.unlink(File.join('data',@r.last,'callback')) rescue nil
+    File.unlink(File.join('data',@r.last,'num')) rescue nil
+    File.unlink(File.join('data',@r.last,'total')) rescue nil
+    File.unlink(File.join('data',@r.last,'style.url')) rescue nil
+    File.unlink(File.join('data',@r.last,'image.xml')) rescue nil
+    File.unlink(File.join('data',@r.last,'errors.xml')) rescue nil
+
+    if @p[0].value == 'finish' || @p[0].value == 'error'
+      @a[0].send('reset')
+    end
+    nil
+  end
+end
+
+class GetInfo < Riddl::Implementation #{{{
+  def response
+    fname = File.join('data',@r[-2],'info.json')
+    if File.exists? fname
+      Riddl::Parameter::Complex.new('value','application/json',File.read(fname))
+    else
+      @status = 404
+    end
+  end
+end #}}}
+class GetLangs < Riddl::Implementation #{{{
+  def response
+    fname = File.join('data',@r[-2],'image.xml')
+    if File.exists? fname
+      doc = XML::Smart.open_unprotected(fname)
+      ndoc = XML::Smart.string('<languages/>')
+      doc.find('//@lang').each do |e|
+        ndoc.root.add('language',e.value)
+      end
+      Riddl::Parameter::Complex.new('value','text/xml',ndoc.to_s)
+    else
+      @status = 404
+    end
+  end
+end #}}}
+class GetStyle < Riddl::Implementation #{{{
+  def response
+    fname = File.join('data',@r[-2],'style.url')
+    if File.exists? fname
+      Riddl::Parameter::Complex.new('url','text/plain',File.read(fname).strip)
+    else
+      @status = 404
+    end
+  end
+end #}}}
+class GetDocument < Riddl::Implementation #{{{
+  def response
+    fname = File.join('data',@r[-3],'image.xml')
+    if File.exists? fname
+      doc = XML::Smart.open_unprotected(fname)
+      val = nil
+      doc.find("//variant[@lang='#{@r[-1]}']").each do |e|
+        val = e.text
+      end
+      if val
+        Riddl::Parameter::Complex.new('url','text/plain',val.strip)
+      else
+        @status = 404
+      end
+    else
+      @status = 404
+    end
+  end
+end #}}}
+
+class SSE < Riddl::SSEImplementation #{{{
+  def onopen
+    signals = @a[0]
+    signals.add self
+    send 'started'
+  end
+
+  def onclose
+    signals = @a[0]
+    signals.remove self
+    nil
+  end
+end #}}}
+
+class Signaling # {{{
+  def initialize
+    @binding = []
+  end
+
+  def add(binding)
+    @binding << binding
+  end
+  def remove(binding)
+    @binding.delete(binding)
+  end
+  def length
+    @binding.length
+  end
+
+  def send(value)
+    @binding.each do |b|
+      b.send(value)
+    end
+  end
+end #}}}
+
+server = Riddl::Server.new(File.join(__dir__,'/frames.xml'), :host => 'localhost') do |opts|
+  accessible_description true
+  cross_site_xhr true
+
+  opts[:signals] = {}
+
+  parallel do
+    loop do
+      opts[:signals].each do |k,v|
+        v.send('keepalive')
+      end
+      sleep 5
+    end
+  end
+
+  on resource do
+    on resource do |r|
+      idx = r[:r][0]
+      opts[:signals][idx] ||= Signaling.new
+
+      run Get if get
+      run Put, opts[:signals][idx] if put 'input'
+      run Delete, opts[:signals][idx] if delete 'opa'
+      run Delete, opts[:signals][idx] if delete 'opb'
+      on resource 'sse' do
+        run SSE, opts[:signals][idx] if sse
+      end
+      on resource 'languages' do
+        run GetLangs if get
+      end
+      on resource 'style.url' do
+        run GetStyle if get
+      end
+      on resource 'info.json' do
+        run GetInfo if get
+      end
+      on resource 'documents' do
+        on resource '[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*' do
+          run GetDocument if get
+        end
+      end
+    end
+  end
+end.loop!
