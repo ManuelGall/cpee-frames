@@ -22,32 +22,26 @@ require 'xml/smart'
 require 'riddl/server'
 require 'fileutils'
 require 'typhoeus'
-
 class Get < Riddl::Implementation
   def response
-    Riddl::Parameter::Complex.new('ui','text/html',File.open(File.join(__dir__,'template','template.html')))
+    if @r[0] == 'test'
+      Riddl::Parameter::Complex.new('ui','text/html',File.open(File.join(__dir__,'template','test.html')))
+    else
+      Riddl::Parameter::Complex.new('ui','text/html',File.open(File.join(__dir__,'template','template.html')))
+    end
   end
 end
 
 class Put < Riddl::Implementation
   def response
+    puts "AAAAAAAAAAAAAAAAAAA"
     Dir.mkdir(File.join('data',@r.last)) rescue nil
-    File.write(File.join('data',@r.last,'num'),@p[0].value)
-    File.write(File.join('data',@r.last,'total'),@p[1].value)
-    File.write(File.join('data',@r.last,'style.url'),@p[2].value)
+    File.write(File.join('data',@r.last,'style.url'),@p[0].value)
+    File.write(File.join('data',@r.last,'document.xml'),@p[1].value)
+    File.write(File.join('data',@r.last,'frames.json'),JSON.dump(JSON.parse('{"data":[]}')))
 
-    image = Typhoeus.get(@p[3].value).response_body rescue '<image/>'
-    File.write(File.join('data',@r.last,'image.xml'),image)
-
-    if @p[4]&.name == 'errors_url'
-      errors = Typhoeus.get(@p[4].value).response_body rescue '<reasons/>'
-      File.write(File.join('data',@r.last,'errors.xml'),errors)
-    end
-    if @p[4]&.name == 'info'
-      File.write(File.join('data',@r.last,'info.json'),@p[4].value)
-    end
-    if @p[5]&.name == 'info'
-      File.write(File.join('data',@r.last,'info.json'),@p[5].value)
+    if @p[2]&.name == 'info'
+      File.write(File.join('data',@r.last,'info.json'),@p[2].value)
     end
 
     File.write(File.join('data',@r.last,'callback'),@h['CPEE_CALLBACK'])
@@ -60,15 +54,52 @@ class Put < Riddl::Implementation
     Riddl::Header.new('CPEE-CALLBACK', 'true')
   end
 end
+
+class NewFrame < Riddl::Implementation
+  def response    
+    path = File.join('data',@r.last,'frames.json')
+    file = File.read(path)
+    data_hash = JSON::parse(file)
+    
+    #puts "Before " + JSON.dump(data_hash);
+    
+    data_hash["data"].each do | c |
+      
+      if doOverlap(c['lx'], c['ly'], c['rx'], c['ry'], @p[0].value.to_i, @p[1].value.to_i, (@p[0].value.to_i + @p[2].value.to_i - 1), (@p[1].value.to_i + @p[3].value.to_i - 1))
+        data_hash["data"].delete(c)
+      end
+    end
+    
+    hash = {lx: @p[0].value.to_i, ly: @p[1].value.to_i, rx: (@p[0].value.to_i + @p[2].value.to_i - 1), ry: (@p[1].value.to_i + @p[3].value.to_i - 1), url: @p[4].value};
+    
+    
+    File.write(path, JSON.dump(data_hash))
+
+    @a[0].send(JSON.dump(hash))
+    nil
+ 
+  end
+end
+
+
+def doOverlap(l1x, l1y, r1x, r1y, l2x, l2y, r2x, r2y) 
+  if l1x > r2x || l2x > r1x
+      return false;
+  end
+  if l1y > r2y || l2y > r1y
+      return false;
+  end
+  return true; 
+end
+
+
 class Delete < Riddl::Implementation
   def response
     if cbu = File.read(File.join('data',@r.last,'callback'))
       send = { 'operation' => @p[0].value }
       case send['operation']
-        when 'jump'
-          send['target'] = @p[1].value
-        when 'error'
-          send['reason'] = @p[1].value
+        when 'result'
+          send['target'] = JSON::parse(@p[1].value.read)
       end
       cbu += '/' unless cbu[-1] == '/'
 
@@ -76,15 +107,11 @@ class Delete < Riddl::Implementation
     end
 
     File.unlink(File.join('data',@r.last,'callback')) rescue nil
-    File.unlink(File.join('data',@r.last,'num')) rescue nil
-    File.unlink(File.join('data',@r.last,'total')) rescue nil
     File.unlink(File.join('data',@r.last,'style.url')) rescue nil
-    File.unlink(File.join('data',@r.last,'image.xml')) rescue nil
-    File.unlink(File.join('data',@r.last,'errors.xml')) rescue nil
+    File.unlink(File.join('data',@r.last,'document.xml')) rescue nil
+    File.unlink(File.join('data',@r.last,'info.json')) rescue nil
 
-    if @p[0].value == 'finish' || @p[0].value == 'error'
-      @a[0].send('reset')
-    end
+    @a[0].send('reset')
     nil
   end
 end
@@ -99,9 +126,10 @@ class GetInfo < Riddl::Implementation #{{{
     end
   end
 end #}}}
+
 class GetLangs < Riddl::Implementation #{{{
   def response
-    fname = File.join('data',@r[-2],'image.xml')
+    fname = File.join('data',@r[-2],'document.xml')
     if File.exists? fname
       doc = XML::Smart.open_unprotected(fname)
       ndoc = XML::Smart.string('<languages/>')
@@ -126,12 +154,31 @@ class GetStyle < Riddl::Implementation #{{{
 end #}}}
 class GetDocument < Riddl::Implementation #{{{
   def response
-    fname = File.join('data',@r[-3],'image.xml')
+    fname = File.join('data',@r[-3],'document.xml')
     if File.exists? fname
       doc = XML::Smart.open_unprotected(fname)
       val = nil
       doc.find("//variant[@lang='#{@r[-1]}']").each do |e|
         val = e.text
+      end
+      if val
+        Riddl::Parameter::Complex.new('url','text/plain',val.strip)
+      else
+        @status = 404
+      end
+    else
+      @status = 404
+    end
+  end
+end #}}}
+class GetButton < Riddl::Implementation #{{{
+  def response
+    fname = File.join('data',@r[-3],'document.xml')
+    if File.exists? fname
+      doc = XML::Smart.open_unprotected(fname)
+      val = nil
+      doc.find("//variant[@lang='#{@r[-1]}']").each do |e|
+        val = e.attributes['button']
       end
       if val
         Riddl::Parameter::Complex.new('url','text/plain',val.strip)
@@ -201,6 +248,7 @@ server = Riddl::Server.new(File.join(__dir__,'/frames.xml'), :host => 'localhost
       opts[:signals][idx] ||= Signaling.new
 
       run Get if get
+      run NewFrame, opts[:signals][idx] if post 'frame'
       run Put, opts[:signals][idx] if put 'input'
       run Delete, opts[:signals][idx] if delete 'opa'
       run Delete, opts[:signals][idx] if delete 'opb'
@@ -215,6 +263,11 @@ server = Riddl::Server.new(File.join(__dir__,'/frames.xml'), :host => 'localhost
       end
       on resource 'info.json' do
         run GetInfo if get
+      end
+      on resource 'buttons' do
+        on resource '[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*' do
+          run GetButton if get
+        end
       end
       on resource 'documents' do
         on resource '[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*' do

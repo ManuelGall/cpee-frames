@@ -24,6 +24,13 @@
       <parameter name="info" type="string"/>
     </optional>
   </message>
+  <message name="frame">
+    <parameter name="lx" type="string"/>
+    <parameter name="ly" type="string"/>
+    <parameter name="rx" type="string"/>
+    <parameter name="ry" type="string"/>
+    <parameter name="url" type="string"/>
+  </message>
   <message name="ui">
     <parameter name="ui" mimetype="text/html"/>
   </message>
@@ -54,6 +61,7 @@
     <resource>
       <get out="ui"/>
       <put in='input' out="callback"/>
+      <post in='frame'/>
       <delete in='opa'/>
       <delete in='opb'/>
       <resource relative='sse'>
