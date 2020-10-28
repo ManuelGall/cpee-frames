@@ -51,28 +51,6 @@
   <body is="x-ui">
     <div id="container">
     </div>
-
-<script>
-  const container = document.getElementById("container");
-
-  function makeRows(rows, cols) {
-    container.style.setProperty('--grid-rows', rows);
-    container.style.setProperty('--grid-cols', cols);
-    for (c = 0; c < (rows * cols); c++) {
-      let cell = document.createElement("div");
-      //cell.innerText = (c + 1);
-      cell.classList.add("item" + (c% cols) + "-" + (Math.floor(c / cols ))); 
-      
-      cell.classList.add("grid-item");
-
-      container.appendChild(cell);
-    };
-  };
-
-  makeRows(6, 3);
-  //makeRows(200, 300);
-
-</script>
 <!--
     <div id="languages" class="hidden"></div>
 

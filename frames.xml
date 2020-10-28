@@ -20,9 +20,9 @@
   <message name="input">
     <parameter name="style_url" type="string"/>
     <parameter name="document_url" type="string"/>
-    <optional>
-      <parameter name="info" type="string"/>
-    </optional>
+    <parameter name="x_amount" type="string"/>
+    <parameter name="y_amount" type="string"/>
+    <parameter name="lang" type="string"/>
   </message>
   <message name="frame">
     <parameter name="lx" type="string"/>
@@ -44,6 +44,9 @@
     <parameter name="langs" mimetype="*/xml">
       <xi:include href="rngs/langs.rng"/>
     </parameter>
+  </message>
+  <message name="lang">
+    <parameter name="lang" type="string"/>
   </message>
   <message name="opa">
     <parameter name="op" fixed="error"/>
@@ -69,6 +72,7 @@
       </resource>
       <resource relative="languages">
         <get out="langs"/>
+        <post in='lang'/>
       </resource>
       <resource relative="style.url">
         <get out="url"/>
@@ -79,6 +83,9 @@
         </resource>
       </resource>
       <resource relative="info.json">
+        <get out="json"/>
+      </resource>
+      <resource relative="frames.json">
         <get out="json"/>
       </resource>
     </resource>

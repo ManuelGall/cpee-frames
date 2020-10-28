@@ -3,6 +3,30 @@ var reason ="";
 
 function showDocument() {
   
+  $.ajax({
+    type: "GET",
+    url: 'info.json',
+    success: function(ret) {
+      makeGrid(ret.x_amount, ret.y_amount);
+      $.ajax({
+        type: "GET",
+        url: 'frames.json',
+        success: function(ret2) {
+          for (i in ret2.data) {
+            makeFrame(ret2.data[i].lx,ret2.data[i].ly,ret2.data[i].rx,ret2.data[i].ry, ret2.data[i].url);
+          }
+        }
+      });
+    },
+    error: function() {
+      reason = '';
+      clearDocument();
+    }
+  });
+  
+  
+  
+  
   /*
   $.ajax({
     type: "GET",
@@ -104,19 +128,20 @@ function init() {
     if (e.data == 'new') {
       reason = '';
       showDocument();
-      alert("Test1")
     }
     if (e.data == 'reset') {
       reason = '';
-      console.log('xxx');
-      clearDocument();
-      alert("TEST2")
+      showDocument();
     }
     else{
       if(e.data != "keepalive" && e.data != "started"){
-      alert(e.data)
-        var frd = JSON.parse(e.data)
-        makeFrame(frd.lx,frd.ly,frd.rx,frd.ry, frd.url);
+        try {
+          //alert(e.data)
+          var frd = JSON.parse(e.data)
+          makeFrame(frd.lx,frd.ly,frd.rx,frd.ry, frd.url);
+        }
+        catch (e) {
+        }
       }
         
     }
@@ -130,7 +155,22 @@ function init() {
 
 
 
+function makeGrid(x, y) {
+  const container = document.getElementById("container");
+  container.style.setProperty('--grid-rows', y);
+  container.style.setProperty('--grid-cols', x);
+  /*
+  for (c = 0; c < (x * y); c++) {
+    let cell = document.createElement("div");
+    //cell.innerText = (c + 1);
+    cell.classList.add("item" + (c% y) + "-" + (Math.floor(c / y ))); 
+    
+    cell.classList.add("grid-item");
 
+    container.appendChild(cell);
+  };
+  */
+};
 
 
 
