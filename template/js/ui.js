@@ -13,7 +13,7 @@ function showDocument() {
         url: 'frames.json',
         success: function(ret2) {
           for (i in ret2.data) {
-            makeFrame(ret2.data[i].lx,ret2.data[i].ly,ret2.data[i].rx,ret2.data[i].ry, ret2.data[i].url);
+            makeFrame(ret2.data[i].lx,ret2.data[i].ly,ret2.data[i].rx,ret2.data[i].ry, ret2.data[i].url, ret2.data[i].callback, ret2.data[i].showbutton);
           }
         }
       });
@@ -138,7 +138,7 @@ function init() {
         try {
           //alert(e.data)
           var frd = JSON.parse(e.data)
-          makeFrame(frd.lx,frd.ly,frd.rx,frd.ry, frd.url);
+          makeFrame(frd.lx,frd.ly,frd.rx,frd.ry, frd.url, frd.callback);
         }
         catch (e) {
         }

@@ -32,7 +32,7 @@ function hideRectangel(l1x, l1y, r1x, r1y){
 */
 
 
-function makeFrame(lx, ly, rx, ry, content = "") {
+function makeFrame(lx, ly, rx, ry, content = "", id = "", showbutton=false) {
   
   //check if rects overlap if they do remove old ones
   for (i = 0; i < window.storage.length; i++) {
@@ -53,14 +53,39 @@ function makeFrame(lx, ly, rx, ry, content = "") {
   let cell = document.createElement("div");
   cell.classList.add("grid-item");
   cell.classList.add("item" + lx + "-" + ly);
-  $(cell).css({"display": "block", "border-style": "solid", "border-color": "blue", "grid-column": (lx+1) + " / span " + (rx-lx+1),  "grid-row": ly+1 + " / span " + (ry-ly+1)});
+
+  spancol= ""
+  if(rx-lx+1 > 1){
+    spancol = " / span " + (rx-lx+1);
+    
+  }
+  
+  spanrow= ""
+  if(ry-ly+1 > 1){
+    spanrow = " / span " + (ry-ly+1);
+  }
+  
+  jQuery.cssNumber.gridColumnStart = true;
+  jQuery.cssNumber.gridColumnEnd = true;
+  jQuery.cssNumber.gridRowStart = true;
+  jQuery.cssNumber.gridRowEnd = true;
+  
+  $(cell).css({"display": "block", "border-style": "solid", "border-color": "blue", "grid-column": (lx+1) + spancol,  "grid-row": ly+1 + spanrow});
+  
+  console.log({"display": "block", "border-style": "solid", "border-color": "blue", "grid-column-start": (lx+1), "grid-column-end": (rx+1),  "grid-row-start": ly+1,  "grid-row-end": ry+1})
+  
   container.appendChild(cell);
     
   //Create new element with width, heigth and content
   //$(".item" + lx + "-" + ly).css({"display": "block", "border-style": "solid", "border-color": "blue", "grid-column": (lx+1) + " / span " + (rx-lx+1),  "grid-row": ly+1 + " / span " + (ry-ly+1)});
   
   if(content != null && content != ""){
-    $(".item" + lx + "-" + ly).html("<iframe width=100% height=100% src='" + content + "' title=''></iframe>");
+    $(".item" + lx + "-" + ly).html("<iframe width=100% height=100% name='" + id +"' src='" + content + "' title=''></iframe>");
+            
+    if(showbutton && content.startsWith("https://centurio.work/out/forms")){
+      $(".item" + lx + "-" + ly).append('<button class="formbutton" type="button" onclick="sendForm(\'' + '.item' + lx + '-' + ly +'\', \'' + encodeURIComponent(id) + '\', \'' + lx  + '\', \'' + ly  + '\')">Send Form</button>')    
+    }
+    
     //hideRectangel(lx, ly, rx, ry)
   }
   else{
@@ -69,6 +94,65 @@ function makeFrame(lx, ly, rx, ry, content = "") {
   }
   
 };
+
+function getFormData($form){
+    var unindexed_array = $form.serializeArray();
+    var indexed_array = {};
+
+    $.map(unindexed_array, function(n, i){
+        indexed_array[n['name']] = n['value'];
+    });
+
+    return indexed_array;
+}
+
+
+
+function sendForm(menuitem, cpeecallback,lx,ly){
+  /* old can be used when formi js is active */
+  $.ajax({
+    type: "PUT",
+    url: decodeURIComponent(cpeecallback),
+    contentType: "application/json",
+    data: $('iframe[name="' + decodeURIComponent(cpeecallback) +  '"]').contents().find("#submission").html(),
+    success: function (data) {
+      //close form
+      $(menuitem).remove();
+    }
+  });
+  
+  
+  //get Iframe then data
+  /* without formio JS
+  var $form = $('iframe[name="' + decodeURIComponent(cpeecallback) +  '"]').contents().find("#form");
+  var formdatajson = getFormData($form);
+  alert(JSON.stringify(formdatajson))
+
+  $.ajax({
+    type: "PUT",
+    url: decodeURIComponent(cpeecallback),
+    contentType: "application/json",
+    data: JSON.stringify(formdatajson),
+    success: function (data) {
+      //close form
+      $(menuitem).remove();
+    }
+  });
+  */
+  
+  //remove from Server
+  $.ajax({
+    type: "Post",
+    url: "",
+		headers: {"content-id": "deleteframe"},
+    data: {lx: lx, ly: ly},
+    success: function (data) {      
+    }
+  });
+}
+
+
+
 
 /*
 document.addEventListener('keyup', (event) => {

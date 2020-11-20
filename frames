@@ -30,6 +30,8 @@ class Get < Riddl::Implementation
   def response
     if @r[0] == 'test'
       Riddl::Parameter::Complex.new('ui','text/html',File.open(File.join(__dir__,'template','test.html')))
+    elsif @r[0] == 'menu'
+      Riddl::Parameter::Complex.new('ui','text/html',File.open(File.join(__dir__,'template','menu.html')))
     else
       Riddl::Parameter::Complex.new('ui','text/html',File.open(File.join(__dir__,'template','template.html')))
     end
@@ -55,10 +57,22 @@ class Put < Riddl::Implementation
     nil
   end
 
-  def headers
-    Riddl::Header.new('CPEE-CALLBACK', 'true')
+  
+  #def headers
+  #  Riddl::Header.new('CPEE-CALLBACK', 'true')
+  #end
+end
+
+
+#https://coderwall.com/p/atyfyq/ruby-string-to-boolean
+class String
+  def to_bool
+    return true if self == true || self =~ (/(true|t|yes|y|1)$/i)
+    return false if self == false || self.empty? || self =~ (/(false|f|no|n|0)$/i)
+    raise ArgumentError.new("invalid value for Boolean: \"#{self}\"")
   end
 end
+
 
 class NewFrame < Riddl::Implementation
   def response    
@@ -85,7 +99,7 @@ class NewFrame < Riddl::Implementation
 #     }
     urls = JSON::parse(@p[4].value);
     
-    hash = {lx: @p[0].value.to_i, ly: @p[1].value.to_i, rx: (@p[0].value.to_i + @p[2].value.to_i - 1), ry: (@p[1].value.to_i + @p[3].value.to_i - 1), url: urls};
+    hash = {lx: @p[0].value.to_i, ly: @p[1].value.to_i, rx: (@p[0].value.to_i + @p[2].value.to_i - 1), ry: (@p[1].value.to_i + @p[3].value.to_i - 1), url: urls, showbutton: @p[5].value.to_bool};
     data_hash["data"].push(hash)
     File.write(path, JSON.dump(data_hash))
     
@@ -97,6 +111,60 @@ class NewFrame < Riddl::Implementation
     @a[0].send(JSON.dump(hash))
     nil
  
+  end
+end
+
+
+
+class NewFramePut < Riddl::Implementation
+  def response    
+    path = File.join('data',@r.last,'frames.json')
+    file = File.read(path)
+    data_hash = JSON::parse(file)
+    
+    data_hash["data"].each do | c |
+      if doOverlap(c['lx'], c['ly'], c['rx'], c['ry'], @p[0].value.to_i, @p[1].value.to_i, (@p[0].value.to_i + @p[2].value.to_i - 1), (@p[1].value.to_i + @p[3].value.to_i - 1))
+        data_hash["data"].delete(c)
+      end
+    end
+    
+    urls = JSON::parse(@p[4].value);
+    
+  hash = {lx: @p[0].value.to_i, ly: @p[1].value.to_i, rx: (@p[0].value.to_i + @p[2].value.to_i - 1), ry: (@p[1].value.to_i + @p[3].value.to_i - 1), url: urls, showbutton: @p[5].value.to_bool, callback: @h['CPEE_CALLBACK']};
+    data_hash["data"].push(hash)
+    File.write(path, JSON.dump(data_hash))
+    
+    #only send active url to client
+    infofile = File.join('data',@r.last,'info.json')
+    infojson = JSON::parse(File.read(infofile))
+    hash["url"] = urls[infojson["lang"]]
+
+    @a[0].send(JSON.dump(hash))
+    nil
+ 
+  end
+  
+  def headers
+    Riddl::Header.new('CPEE-CALLBACK', 'true')
+  end
+end
+
+
+class DeleteFrame < Riddl::Implementation
+  def response    
+    puts "deleting"
+    
+    path = File.join('data',@r.last,'frames.json')
+    file = File.read(path)
+    data_hash = JSON::parse(file)
+    
+    data_hash["data"].each do | c |
+      if doOverlap(c['lx'], c['ly'], c['rx'], c['ry'], @p[0].value.to_i, @p[1].value.to_i, (@p[0].value.to_i + 1), (@p[1].value.to_i + 1))
+        data_hash["data"].delete(c)
+      end
+    end
+    
+    File.write(path, JSON.dump(data_hash))
   end
 end
 
@@ -257,11 +325,54 @@ class GetButton < Riddl::Implementation #{{{
   end
 end #}}}
 
+
+
+
+
+
+
+class Handler < Riddl::Implementation
+  def response    
+  
+      topic         = @p[1].value
+      event_name    = @p[2].value
+      log_dir       = @a[0]
+      template      = @a[1]
+      notification  = JSON.parse(@p[3].value.read)
+      
+      
+      instancenr = notification['instance']
+      content = notification['content']
+      activity = content['activity']
+      parameters = content['parameters']
+      receiving = content['received']
+  
+      #puts instancenr
+      #puts activity
+      
+      
+      if content['values']&.any?
+        puts alldata['ausfuehrungen']
+      end
+  
+  
+    nil
+  end
+end
+
+
+
+
+
+
+
+
 class SSE < Riddl::SSEImplementation #{{{
   def onopen
     signals = @a[0]
     signals.add self
     send 'started'
+    true
   end
 
   def onclose
@@ -314,8 +425,21 @@ server = Riddl::Server.new(File.join(__dir__,'/frames.xml'), :host => 'localhost
       opts[:signals][idx] ||= Signaling.new
 
       run Get if get
-      run NewFrame, opts[:signals][idx] if post 'frame'
       run Put, opts[:signals][idx] if put 'input'
+      
+      run NewFrame, opts[:signals][idx] if post 'frame'
+      run NewFramePut, opts[:signals][idx] if put 'frame'
+      
+      run DeleteFrame, opts[:signals][idx] if post 'deleteframe'
+      
+      
+      
+      on resource 'handler' do
+        run Handler if post 
+      end 
+      
+      
+      
       run Delete, opts[:signals][idx] if delete 'opa'
       run Delete, opts[:signals][idx] if delete 'opb'
       on resource 'sse' do

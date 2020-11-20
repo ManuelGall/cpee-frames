@@ -27,9 +27,14 @@
   <message name="frame">
     <parameter name="lx" type="string"/>
     <parameter name="ly" type="string"/>
-    <parameter name="rx" type="string"/>
-    <parameter name="ry" type="string"/>
+    <parameter name="x_amount" type="string"/>
+    <parameter name="y_amount" type="string"/>
     <parameter name="url" type="string"/>
+    <parameter name="button" type="string"/>
+  </message>
+  <message name="deleteframe">
+    <parameter name="lx" type="string"/>
+    <parameter name="ly" type="string"/>
   </message>
   <message name="ui">
     <parameter name="ui" mimetype="text/html"/>
@@ -63,8 +68,19 @@
   <resource>
     <resource>
       <get out="ui"/>
-      <put in='input' out="callback"/>
+      <put in='input'/>
+      
+      <put in='frame' out="callback"/>
       <post in='frame'/>
+      <post in='deleteframe'/>
+      
+      
+      
+      
+      
+      
+      
+      
       <delete in='opa'/>
       <delete in='opb'/>
       <resource relative='sse'>
@@ -87,6 +103,10 @@
       </resource>
       <resource relative="frames.json">
         <get out="json"/>
+      </resource>
+      
+      <resource relative='handler'>
+        <post />
       </resource>
     </resource>
   </resource>
