@@ -104,9 +104,16 @@
       <resource relative="frames.json">
         <get out="json"/>
       </resource>
+      <resource relative="dataelements.json">
+        <get out="json"/>
+      </resource>
       
       <resource relative='handler'>
         <post />
+        
+        <resource relative='sse'>
+          <sse/>
+        </resource>
       </resource>
     </resource>
   </resource>

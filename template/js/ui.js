@@ -1,8 +1,133 @@
 var reason ="";
 
 
+var storage = []; //{col:1, row:1, colamount:1, rowamount: 1}];
+
+
+function doOverlap(l1x, l1y, r1x, r1y, l2x, l2y, r2x, r2y) { 
+    // If one rectangle is on left side of other 
+    if (l1x > r2x || l2x > r1x) 
+        return false;
+    // If one rectangle is above other 
+    if (l1y > r2y || l2y > r1y) 
+        return false;
+    return true; 
+}
+
+
+function makeFrame(lx, ly, rx, ry, content = "", id = "", showbutton=false) {
+  
+  //check if rects overlap if they do remove old ones
+  for (i = 0; i < window.storage.length; i++) {
+    if(doOverlap(window.storage[i].lx, window.storage[i].ly, window.storage[i].rx, window.storage[i].ry, lx, ly, rx, ry)){
+      $(".item" + window.storage[i].lx + "-" + window.storage[i].ly).remove();
+      //clearRectangel(window.storage[i].lx, window.storage[i].ly, window.storage[i].rx, window.storage[i].ry)
+      window.storage.splice(i,1);
+      --i;
+    }
+  }
+  
+  //add new ellement to storage
+  window.storage.push({lx:lx, ly:ly, rx:rx, ry: ry})
+  
+  
+  
+  const container = document.getElementById("container");
+  let cell = document.createElement("div");
+  cell.classList.add("grid-item");
+  cell.classList.add("item" + lx + "-" + ly);
+
+  spancol= ""
+  if(rx-lx+1 > 1){
+    spancol = " / span " + (rx-lx+1);
+    
+  }
+  
+  spanrow= ""
+  if(ry-ly+1 > 1){
+    spanrow = " / span " + (ry-ly+1);
+  }
+  
+  jQuery.cssNumber.gridColumnStart = true;
+  jQuery.cssNumber.gridColumnEnd = true;
+  jQuery.cssNumber.gridRowStart = true;
+  jQuery.cssNumber.gridRowEnd = true;
+  
+  $(cell).css({"display": "block", "border-style": "solid", "border-color": "blue", "grid-column": (lx+1) + spancol,  "grid-row": ly+1 + spanrow});
+  
+  
+  container.appendChild(cell);
+    
+  //Create new element with width, heigth and content
+  //$(".item" + lx + "-" + ly).css({"display": "block", "border-style": "solid", "border-color": "blue", "grid-column": (lx+1) + " / span " + (rx-lx+1),  "grid-row": ly+1 + " / span " + (ry-ly+1)});
+  
+  if(content != null && content != ""){
+    $(".item" + lx + "-" + ly).html("<iframe width=100% height=100% name='" + id +"' id='" + id +"' src='" + content + "' title=''></iframe>");
+            
+    if(showbutton && content.startsWith("https://centurio.work/out/forms")){
+      $(".item" + lx + "-" + ly).append('<button class="formbutton" type="button" onclick="sendForm(\'' + '.item' + lx + '-' + ly +'\', \'' + encodeURIComponent(id) + '\', \'' + lx  + '\', \'' + ly  + '\')">Send Form</button>')    
+    }
+    
+    //hideRectangel(lx, ly, rx, ry)
+  }
+  else{
+    $(".item" + lx + "-" + ly).html("No language available.<br> Nicht in der Sprache verfügbar.");
+    //hideRectangel(lx, ly, rx, ry)
+  }
+  
+}
+
+function getFormData($form){
+    var unindexed_array = $form.serializeArray();
+    var indexed_array = {};
+
+    $.map(unindexed_array, function(n, i){
+        indexed_array[n['name']] = n['value'];
+    });
+
+    return indexed_array;
+}
+
+
+
+function sendForm(menuitem, cpeecallback,lx,ly){
+  //Call iframe function that button has been pressed iframe decides what to do
+  //document.getElementById(decodeURIComponent(cpeecallback)).contentWindow.buttonPressed(cpeecallback);
+  
+  $.ajax({
+    type: "PUT",
+    url: decodeURIComponent(cpeecallback),
+    contentType: "application/json",
+    data: document.getElementById(decodeURIComponent(cpeecallback)).contentWindow.buttonPressed(),
+    success: function (data) {
+    }
+  });
+  
+  
+  //close form
+  $(menuitem).remove();
+  //remove form from Server
+  $.ajax({
+    type: "Post",
+    url: "",
+		headers: {"content-id": "deleteframe"},
+    data: {lx: lx, ly: ly},
+    success: function (data) {      
+    }
+  });
+}
+
+
 function showDocument() {
   
+  $.ajax({
+    type: "GET",
+    url: 'style.url',
+    success: function(ret) {
+      $('head link.custom').attr('href',ret);
+    }
+  });
+        
   $.ajax({
     type: "GET",
     url: 'info.json',
@@ -134,15 +259,19 @@ function init() {
       showDocument();
     }
     else{
+      if(e.data == "update"){
+        alert("update")
+      }
       if(e.data != "keepalive" && e.data != "started"){
         try {
           //alert(e.data)
           var frd = JSON.parse(e.data)
-          makeFrame(frd.lx,frd.ly,frd.rx,frd.ry, frd.url, frd.callback);
+          makeFrame(frd.lx,frd.ly,frd.rx,frd.ry, frd.url, frd.callback, frd.showbutton);
         }
         catch (e) {
         }
       }
+      
         
     }
   };
@@ -153,7 +282,7 @@ function init() {
   };
 }
 
-
+ 
 
 function makeGrid(x, y) {
   const container = document.getElementById("container");
@@ -174,21 +303,7 @@ function makeGrid(x, y) {
 
 
 
-
 $(document).ready(function() {
-  $('#control').on('click','button[name=send]',b_send);
   init();
 });
 
-function b_send() {
-  var formData = new FormData();
-  var content = JSON.stringify($('iframe:visible')[0].contentWindow.send_it());
-  var blob = new Blob([content], { type: "application/json"});
-
-  formData.append("op", "result");
-  formData.append("value", blob);
-
-  var request = new XMLHttpRequest();
-  request.open("DELETE", location.href);
-  request.send(formData);
-}

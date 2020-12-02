@@ -27,11 +27,13 @@ require 'typhoeus'
 # https://centurio.work/customers/evva/flow/?monitor=https://centurio.work/flow-test/engine/729/
 
 class Get < Riddl::Implementation
-  def response
+  def response    
     if @r[0] == 'test'
       Riddl::Parameter::Complex.new('ui','text/html',File.open(File.join(__dir__,'template','test.html')))
     elsif @r[0] == 'menu'
       Riddl::Parameter::Complex.new('ui','text/html',File.open(File.join(__dir__,'template','menu.html')))
+    elsif @r[0] == 'framedata'
+      Riddl::Parameter::Complex.new('ui','text/html',File.open(File.join(__dir__,'template','framedata.html')))
     else
       Riddl::Parameter::Complex.new('ui','text/html',File.open(File.join(__dir__,'template','template.html')))
     end
@@ -41,11 +43,21 @@ end
 class Put < Riddl::Implementation
   def response
     Dir.mkdir(File.join('data',@r.last)) rescue nil
-    File.write(File.join('data',@r.last,'style.url'),@p[0].value)
+    
+    
+    if @p[0].value.to_s.strip.empty?
+      File.write(File.join('data',@r.last,'style.url'), "../css/frames.css")
+    else
+      File.write(File.join('data',@r.last,'style.url'),@p[0].value)
+    end
+    
+    
     
     File.write(File.join('data',@r.last,'document.xml'),@p[1].value)
     
     File.write(File.join('data',@r.last,'frames.json'),JSON.dump(JSON.parse('{"data":[]}')))
+    
+    File.write(File.join('data',@r.last,'dataelements.json'),JSON.dump(JSON.parse('{"data":[]}')))
     
     
     File.write(File.join('data',@r.last,'info.json'),JSON.dump(JSON.parse('{"x_amount":' + @p[2].value + ', "y_amount":' + @p[3].value + ', "lang":"' + @p[4].value  + '", "langs":["' + @p[4].value +  '"]}')))
@@ -203,6 +215,7 @@ class Delete < Riddl::Implementation
   end
 end
 
+
 class GetFrames < Riddl::Implementation #{{{
   def response
     fname = File.join('data',@r[-2],'frames.json')
@@ -223,6 +236,22 @@ class GetFrames < Riddl::Implementation #{{{
     end
   end
 end #}}}
+
+
+class GetDataElements < Riddl::Implementation #{{{
+  def response
+    fname = File.join('data',@r[-2],'dataelements.json')
+    if File.exists? fname
+      Riddl::Parameter::Complex.new('value','application/json',File.read(fname))
+    else
+      @status = 404
+    end
+  end
+end #}}}
+
+
+
+
 
 class GetInfo < Riddl::Implementation #{{{
   def response
@@ -333,11 +362,10 @@ end #}}}
 
 class Handler < Riddl::Implementation
   def response    
+    puts "handler"
   
       topic         = @p[1].value
       event_name    = @p[2].value
-      log_dir       = @a[0]
-      template      = @a[1]
       notification  = JSON.parse(@p[3].value.read)
       
       
@@ -352,9 +380,25 @@ class Handler < Riddl::Implementation
       
       
       if content['values']&.any?
-        puts alldata['ausfuehrungen']
+        #puts alldata['ausfuehrungen']
+        puts "writing file"
+        path = File.join('data',@r[0],'dataelements.json')
+        File.write(path, JSON.dump(content['values']))
       end
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
   
+      @a[0].send(@r[0])
+      nil
   
     nil
   end
@@ -364,10 +408,24 @@ end
 
 
 
-
-
-
 class SSE < Riddl::SSEImplementation #{{{
+  def onopen
+    signals = @a[0]
+    signals.add self
+    send 'started'
+    true
+  end
+
+  def onclose
+    signals = @a[0]
+    signals.remove self
+    nil
+  end
+end #}}}
+
+
+
+class SSE2 < Riddl::SSEImplementation #{{{
   def onopen
     signals = @a[0]
     signals.add self
@@ -409,10 +467,17 @@ server = Riddl::Server.new(File.join(__dir__,'/frames.xml'), :host => 'localhost
   cross_site_xhr true
 
   opts[:signals] = {}
+  opts[:signals2] = {}
 
   parallel do
     loop do
       opts[:signals].each do |k,v|
+        v.send('keepalive')
+      end
+      sleep 5
+    end
+    loop do
+      opts[:signals2].each do |k,v|
         v.send('keepalive')
       end
       sleep 5
@@ -423,8 +488,9 @@ server = Riddl::Server.new(File.join(__dir__,'/frames.xml'), :host => 'localhost
     on resource do |r|
       idx = r[:r][0]
       opts[:signals][idx] ||= Signaling.new
+      opts[:signals2]["handler"] ||= Signaling.new
 
-      run Get if get
+      run Get, "test" if get
       run Put, opts[:signals][idx] if put 'input'
       
       run NewFrame, opts[:signals][idx] if post 'frame'
@@ -435,7 +501,10 @@ server = Riddl::Server.new(File.join(__dir__,'/frames.xml'), :host => 'localhost
       
       
       on resource 'handler' do
-        run Handler if post 
+        run Handler, opts[:signals2]["handler"] if post 
+        on resource 'sse' do
+          run SSE2, opts[:signals2]["handler"] if sse
+        end
       end 
       
       
@@ -457,6 +526,10 @@ server = Riddl::Server.new(File.join(__dir__,'/frames.xml'), :host => 'localhost
       end
       on resource 'frames.json' do
         run GetFrames if get
+      end
+      
+      on resource 'dataelements.json' do
+        run GetDataElements if get
       end
       
       on resource 'buttons' do
