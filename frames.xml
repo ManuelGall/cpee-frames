@@ -45,11 +45,6 @@
   <message name="url">
     <parameter name="url" mimetype="text/plain"/>
   </message>
-  <message name="langs">
-    <parameter name="langs" mimetype="*/xml">
-      <xi:include href="rngs/langs.rng"/>
-    </parameter>
-  </message>
   <message name="lang">
     <parameter name="lang" type="string"/>
   </message>
@@ -64,6 +59,10 @@
   <message name="json">
     <parameter name="value" mimetype="application/json"/>
   </message>
+  
+  <message name="string"> <!--{{{-->
+    <parameter name="value" type="string"/>
+  </message> <!--}}}-->
 
   <resource>
     <resource>
@@ -77,26 +76,20 @@
       
       
       
-      
-      
-      
-      
       <delete in='opa'/>
       <delete in='opb'/>
       <resource relative='sse'>
         <sse/>
       </resource>
       <resource relative="languages">
-        <get out="langs"/>
+        <get out="json"/>
         <post in='lang'/>
       </resource>
       <resource relative="style.url">
         <get out="url"/>
       </resource>
-      <resource relative="documents">
-        <resource relative="[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*">
-            <get out="url"/>
-        </resource>
+      <resource relative="cpeeinstance.url">
+        <get out="url"/>
       </resource>
       <resource relative="info.json">
         <get out="json"/>
@@ -107,6 +100,12 @@
       <resource relative="dataelements.json">
         <get out="json"/>
       </resource>
+      
+      
+      <resource relative="test">
+        <put in="string"/>
+      </resource>
+        
       
       <resource relative='handler'>
         <post />

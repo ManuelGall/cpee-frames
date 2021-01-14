@@ -16,7 +16,6 @@ function doOverlap(l1x, l1y, r1x, r1y, l2x, l2y, r2x, r2y) {
 
 
 function makeFrame(lx, ly, rx, ry, content = "", id = "", showbutton=false) {
-  
   //check if rects overlap if they do remove old ones
   for (i = 0; i < window.storage.length; i++) {
     if(doOverlap(window.storage[i].lx, window.storage[i].ly, window.storage[i].rx, window.storage[i].ry, lx, ly, rx, ry)){
@@ -29,8 +28,6 @@ function makeFrame(lx, ly, rx, ry, content = "", id = "", showbutton=false) {
   
   //add new ellement to storage
   window.storage.push({lx:lx, ly:ly, rx:rx, ry: ry})
-  
-  
   
   const container = document.getElementById("container");
   let cell = document.createElement("div");
@@ -53,60 +50,55 @@ function makeFrame(lx, ly, rx, ry, content = "", id = "", showbutton=false) {
   jQuery.cssNumber.gridRowStart = true;
   jQuery.cssNumber.gridRowEnd = true;
   
-  $(cell).css({"display": "block", "border-style": "solid", "border-color": "blue", "grid-column": (lx+1) + spancol,  "grid-row": ly+1 + spanrow});
-  
+  $(cell).css({"grid-column": (lx+1) + spancol,  "grid-row": ly+1 + spanrow});
   
   container.appendChild(cell);
-    
   //Create new element with width, heigth and content
   //$(".item" + lx + "-" + ly).css({"display": "block", "border-style": "solid", "border-color": "blue", "grid-column": (lx+1) + " / span " + (rx-lx+1),  "grid-row": ly+1 + " / span " + (ry-ly+1)});
   
   if(content != null && content != ""){
-    $(".item" + lx + "-" + ly).html("<iframe width=100% height=100% name='" + id +"' id='" + id +"' src='" + content + "' title=''></iframe>");
+    $(".item" + lx + "-" + ly).html("<iframe width=100% height=100% name='" + id +"' id='" + id +"' src='" + content + "' title='' frameBorder='0' ></iframe>");
             
-    if(showbutton && content.startsWith("https://centurio.work/out/forms")){
-      $(".item" + lx + "-" + ly).append('<button class="formbutton" type="button" onclick="sendForm(\'' + '.item' + lx + '-' + ly +'\', \'' + encodeURIComponent(id) + '\', \'' + lx  + '\', \'' + ly  + '\')">Send Form</button>')    
+    if(showbutton){
+      $(".item" + lx + "-" + ly).append('<button class="formbutton" type="button" onclick="sendForm(\'' + '.item' + lx + '-' + ly +'\', \'' + encodeURIComponent(id) + '\', \'' + lx  + '\', \'' + ly  + '\')">Submit</button>')
     }
     
     //hideRectangel(lx, ly, rx, ry)
   }
   else{
     $(".item" + lx + "-" + ly).html("No language available.<br> Nicht in der Sprache verfügbar.");
-    //hideRectangel(lx, ly, rx, ry)
   }
   
 }
 
-function getFormData($form){
-    var unindexed_array = $form.serializeArray();
-    var indexed_array = {};
-
-    $.map(unindexed_array, function(n, i){
-        indexed_array[n['name']] = n['value'];
-    });
-
-    return indexed_array;
-}
-
-
-
 function sendForm(menuitem, cpeecallback,lx,ly){
-  //Call iframe function that button has been pressed iframe decides what to do
+  //Call iframe function that button has been pressed iframe should send json back
   //document.getElementById(decodeURIComponent(cpeecallback)).contentWindow.buttonPressed(cpeecallback);
+  
+  
+  var formdata;
+ if (typeof document.getElementById(decodeURIComponent(cpeecallback)).contentWindow.buttonPressed !== 'undefined' && $.isFunction(document.getElementById(decodeURIComponent(cpeecallback)).contentWindow.buttonPressed)) {
+    var formdata = document.getElementById(decodeURIComponent(cpeecallback)).contentWindow.buttonPressed();
+  }
+
+
   
   $.ajax({
     type: "PUT",
     url: decodeURIComponent(cpeecallback),
     contentType: "application/json",
-    data: document.getElementById(decodeURIComponent(cpeecallback)).contentWindow.buttonPressed(),
+    data: JSON.stringify(formdata),
     success: function (data) {
     }
   });
   
   
-  //close form
+  
+  
+  //Its a design question if removing the frame should be done within centurio, do have more controll, or automatic within code?
+  //close frame
   $(menuitem).remove();
-  //remove form from Server
+  //remove frame from Server
   $.ajax({
     type: "Post",
     url: "",
@@ -117,6 +109,37 @@ function sendForm(menuitem, cpeecallback,lx,ly){
   });
 }
 
+function sendData(dataelement, datavalue){
+  
+  $.ajax({
+    type: "Get",
+    url: 'cpeeinstance.url',
+    success: function(ret) {
+      $.ajax({
+        type: "Put",
+        url: ret + "/properties/dataelements/" + dataelement,
+        data: {value: datavalue},
+        success: function (data) {     
+          alert("Data Sent")
+        }
+      });
+    }
+  });
+  
+}
+
+function sendCallback(callbackUrl, jsonToSend){
+  
+  $.ajax({
+    type: "PUT",
+    url: callbackUrl,
+    contentType: "application/json",
+    data: jsonToSend,
+    success: function (data) {
+      
+    }
+  });
+}
 
 function showDocument() {
   
@@ -271,8 +294,6 @@ function init() {
         catch (e) {
         }
       }
-      
-        
     }
   };
   es.onerror = function() {
