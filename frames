@@ -225,6 +225,31 @@ class GetFrames < Riddl::Implementation #{{{
 end #}}}
 
 
+class SetDataElements < Riddl::Implementation #{{{
+  def response    
+    savejson = @p.map { |o| Hash[o.name, o.value] }.to_json
+    path = File.join('data',@r[0],'dataelements.json')
+    File.write(path, savejson)
+    
+    #puts xyz
+    
+    #puts JSON.pretty_generate(@p.to_json)
+    
+    
+    
+    #puts @p.length()
+    #puts @p[0].name
+    #puts @p[0].value
+    
+    #fname = File.join('data',@r[-2],'dataelements.json')
+    #if File.exists? fname
+    #  Riddl::Parameter::Complex.new('value','application/json',File.read(fname))
+    #else
+    #  @status = 404
+    #end
+  end
+end #}}}
+
 class GetDataElements < Riddl::Implementation #{{{
   def response
     fname = File.join('data',@r[-2],'dataelements.json')
@@ -482,6 +507,7 @@ server = Riddl::Server.new(File.join(__dir__,'/frames.xml'), :host => 'localhost
       end
       
       on resource 'dataelements.json' do
+        run SetDataElements if post
         run GetDataElements if get
       end
       

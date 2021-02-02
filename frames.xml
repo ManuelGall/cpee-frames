@@ -99,6 +99,7 @@
       </resource>
       <resource relative="dataelements.json">
         <get out="json"/>
+        <post />
       </resource>
       
       
