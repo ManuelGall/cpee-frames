@@ -18,6 +18,7 @@
   grid-template-columns: repeat(var(--grid-cols), 1fr);
   width: 100vw;
   height: 100vh;
+  overflow: hidden;
 }
 
 .grid-item {

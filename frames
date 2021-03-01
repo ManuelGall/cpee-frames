@@ -40,10 +40,9 @@ class Get < Riddl::Implementation
   end
 end
 
-class Put < Riddl::Implementation
+class InitFrame < Riddl::Implementation
   def response
     Dir.mkdir(File.join('data',@r.last)) rescue nil
-    
     
     if @p[0].value.to_s.strip.empty?
       File.write(File.join('data',@r.last,'style.url'), "../css/frames.css")
@@ -83,29 +82,30 @@ class String
 end
 
 
-class NewFrame < Riddl::Implementation
+class NewFrameSet < Riddl::Implementation
   def response    
+  
+    
     path = File.join('data',@r.last,'frames.json')
     file = File.read(path)
     data_hash = JSON::parse(file)
     
     #check if new frame overlaps others if it does, delete overlapped frames
     data_hash["data"].each do | c |
-      if doOverlap(c['lx'], c['ly'], c['rx'], c['ry'], @p[0].value.to_i, @p[1].value.to_i, (@p[0].value.to_i + @p[2].value.to_i - 1), (@p[1].value.to_i + @p[3].value.to_i - 1))
+      if doOverlap(c['lx'], c['ly'], c['rx'], c['ry'], @p[1].value.to_i, @p[2].value.to_i, (@p[1].value.to_i + @p[3].value.to_i - 1), (@p[2].value.to_i + @p[4].value.to_i - 1))
         data_hash["data"].delete(c)
       end
     end
     
-    urls = JSON::parse(@p[4].value);
-    
-    hash = {lx: @p[0].value.to_i, ly: @p[1].value.to_i, rx: (@p[0].value.to_i + @p[2].value.to_i - 1), ry: (@p[1].value.to_i + @p[3].value.to_i - 1), url: urls, showbutton: @p[5].value.to_bool};
+    urls = JSON::parse(@p[6].value);
+    hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: urls, showbutton: @p[5].value, default: JSON::parse(@p[7].value), callback: @h['CPEE_CALLBACK']};
     data_hash["data"].push(hash)
     File.write(path, JSON.dump(data_hash))
     
     #only send active url to client
     infofile = File.join('data',@r.last,'info.json')
     infojson = JSON::parse(File.read(infofile))
-    hash["url"] = urls[infojson["lang"]]
+    hash["url"] = urls.find{ |h| h['lang'] == infojson["lang"]}['url']
 
     @a[0].send(JSON.dump(hash))
     nil
@@ -115,7 +115,7 @@ end
 
 
 
-class NewFramePut < Riddl::Implementation
+class NewFrameWait < Riddl::Implementation
   def response    
     path = File.join('data',@r.last,'frames.json')
     file = File.read(path)
@@ -123,27 +123,30 @@ class NewFramePut < Riddl::Implementation
     
     #check if new frame overlaps others if it does, delete overlapped frames
     data_hash["data"].each do | c |
-      if doOverlap(c['lx'], c['ly'], c['rx'], c['ry'], @p[0].value.to_i, @p[1].value.to_i, (@p[0].value.to_i + @p[2].value.to_i - 1), (@p[1].value.to_i + @p[3].value.to_i - 1))
+      if doOverlap(c['lx'], c['ly'], c['rx'], c['ry'], @p[1].value.to_i, @p[2].value.to_i, (@p[1].value.to_i + @p[3].value.to_i - 1), (@p[2].value.to_i + @p[4].value.to_i - 1))
         data_hash["data"].delete(c)
       end
     end
     
-    urls = JSON::parse(@p[4].value);
-    
-    hash = {lx: @p[0].value.to_i, ly: @p[1].value.to_i, rx: (@p[0].value.to_i + @p[2].value.to_i - 1), ry: (@p[1].value.to_i + @p[3].value.to_i - 1), url: urls, showbutton: @p[5].value.to_bool, callback: @h['CPEE_CALLBACK']};
+    urls = JSON::parse(@p[6].value);
+    if @p[7].value == ""
+      puts "AAA";
+      hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: urls, showbutton: @p[5].value, default: "{}", callback: @h['CPEE_CALLBACK']};
+    else
+      puts "BBB";
+      hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: urls, showbutton: @p[5].value, default: JSON::parse(@p[7].value), callback: @h['CPEE_CALLBACK']};
+    end
     data_hash["data"].push(hash)
     File.write(path, JSON.dump(data_hash))
     
     #only send active url to client
     infofile = File.join('data',@r.last,'info.json')
     infojson = JSON::parse(File.read(infofile))
-    hash["url"] = urls[infojson["lang"]]
+    hash["url"] = urls.find{ |h| h['lang'] == infojson["lang"]}['url']
 
     @a[0].send(JSON.dump(hash))
     nil
- 
   end
-  
   def headers
     Riddl::Header.new('CPEE-CALLBACK', 'true')
   end
@@ -176,6 +179,9 @@ def doOverlap(l1x, l1y, r1x, r1y, l2x, l2y, r2x, r2y)
   end
   return true; 
 end
+
+
+
 
 
 class Delete < Riddl::Implementation
@@ -213,8 +219,9 @@ class GetFrames < Riddl::Implementation #{{{
       
       #remove not used languages
       file = JSON::parse(File.read(fname))
-      file["data"].each do |child|      
-        child["url"] = child["url"][infojson["lang"]]
+      
+      file["data"].each do |child|
+        child["url"] = child["url"].find{ |h| h['lang'] == infojson["lang"]}['url']
       end
       
       Riddl::Parameter::Complex.new('value','application/json',JSON.dump(file))
@@ -463,12 +470,16 @@ server = Riddl::Server.new(File.join(__dir__,'/frames.xml'), :host => 'localhost
       opts[:signals2]["handler"] ||= Signaling.new
 
       run Get, "test" if get
-      run Put, opts[:signals][idx] if put 'input'
+      run InitFrame, opts[:signals][idx] if post 'input'
       
-      run NewFrame, opts[:signals][idx] if post 'frame'
-      run NewFramePut, opts[:signals][idx] if put 'frame'
+      run NewFrameSet, opts[:signals][idx] if put 'sframe'
+      run NewFrameWait, opts[:signals][idx] if put 'wframe'
       
       run DeleteFrame, opts[:signals][idx] if post 'deleteframe'
+      
+      
+      
+      
       
       
       

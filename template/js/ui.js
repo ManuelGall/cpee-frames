@@ -15,7 +15,7 @@ function doOverlap(l1x, l1y, r1x, r1y, l2x, l2y, r2x, r2y) {
 }
 
 
-function makeFrame(lx, ly, rx, ry, content = "", id = "", showbutton=false) {
+function makeFrame(lx, ly, rx, ry, content = "", id = "", defaultpara = "", showbutton = "") {
   //check if rects overlap if they do remove old ones
   for (i = 0; i < window.storage.length; i++) {
     if(doOverlap(window.storage[i].lx, window.storage[i].ly, window.storage[i].rx, window.storage[i].ry, lx, ly, rx, ry)){
@@ -57,10 +57,26 @@ function makeFrame(lx, ly, rx, ry, content = "", id = "", showbutton=false) {
   //$(".item" + lx + "-" + ly).css({"display": "block", "border-style": "solid", "border-color": "blue", "grid-column": (lx+1) + " / span " + (rx-lx+1),  "grid-row": ly+1 + " / span " + (ry-ly+1)});
   
   if(content != null && content != ""){
-    $(".item" + lx + "-" + ly).html("<iframe width=100% height=100% name='" + id +"' id='" + id +"' src='" + content + "' title='' frameBorder='0' ></iframe>");
+  
+    var fullurl = content + "?";
+    //encode default parameter in URL
+    if(defaultpara != "{}"){
+      for (var key in defaultpara) {
+        if (defaultpara.hasOwnProperty(key)) {
+          fullurl = fullurl + key + "=" +  defaultpara[key] + "&";
+         }
+      }
+    }
+    
+    
+    //defaultpara
+    console.log(defaultpara);
+    
+    
+    $(".item" + lx + "-" + ly).html("<iframe width=100% height=100% name='" + id +"' id='" + id +"' src='" + fullurl + "' title='' frameBorder='0' ></iframe>");
             
     if(showbutton){
-      $(".item" + lx + "-" + ly).append('<button class="formbutton" type="button" onclick="sendForm(\'' + '.item' + lx + '-' + ly +'\', \'' + encodeURIComponent(id) + '\', \'' + lx  + '\', \'' + ly  + '\')">Submit</button>')
+      $(".item" + lx + "-" + ly).append('<button class="formbutton" type="button" onclick="sendForm(\'' + '.item' + lx + '-' + ly +'\', \'' + encodeURIComponent(id) + '\', \'' + lx  + '\', \'' + ly  + '\')">' + showbutton + '</button>')
     }
     
     //hideRectangel(lx, ly, rx, ry)
@@ -97,6 +113,7 @@ function sendForm(menuitem, cpeecallback,lx,ly){
   
   //Its a design question if removing the frame should be done within centurio, do have more controll, or automatic within code?
   //close frame
+  
   $(menuitem).remove();
   //remove frame from Server
   $.ajax({
@@ -107,6 +124,7 @@ function sendForm(menuitem, cpeecallback,lx,ly){
     success: function (data) {      
     }
   });
+  
 }
 
 function sendData(dataelement, datavalue){
@@ -161,7 +179,7 @@ function showDocument() {
         url: 'frames.json',
         success: function(ret2) {
           for (i in ret2.data) {
-            makeFrame(ret2.data[i].lx,ret2.data[i].ly,ret2.data[i].rx,ret2.data[i].ry, ret2.data[i].url, ret2.data[i].callback, ret2.data[i].showbutton);
+            makeFrame(ret2.data[i].lx,ret2.data[i].ly,ret2.data[i].rx,ret2.data[i].ry, ret2.data[i].url, ret2.data[i].callback, ret2.data[i].default, ret2.data[i].showbutton);
           }
         }
       });
@@ -289,7 +307,7 @@ function init() {
         try {
           //alert(e.data)
           var frd = JSON.parse(e.data)
-          makeFrame(frd.lx,frd.ly,frd.rx,frd.ry, frd.url, frd.callback, frd.showbutton);
+          makeFrame(frd.lx,frd.ly,frd.rx,frd.ry, frd.url, frd.callback, frd.default, frd.showbutton);
         }
         catch (e) {
         }

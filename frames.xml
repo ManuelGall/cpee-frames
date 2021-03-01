@@ -24,13 +24,25 @@
     <parameter name="y_amount" type="string"/>
     <parameter name="lang" type="string"/>
   </message>
-  <message name="frame">
+  <message name="sframe">
+    <parameter name="type" fixed="set"/>
     <parameter name="lx" type="string"/>
-    <parameter name="ly" type="string"/>
-    <parameter name="x_amount" type="string"/>
-    <parameter name="y_amount" type="string"/>
-    <parameter name="url" type="string"/>
+    <parameter name="ly" type="nonNegativeInteger"/>
+    <parameter name="x_amount" type="nonNegativeInteger"/>
+    <parameter name="y_amount" type="nonNegativeInteger"/>
     <parameter name="button" type="string"/>
+    <parameter name="urls" type="string"/>
+    <parameter name="default" type="string"/>
+  </message>
+  <message name="wframe">
+    <parameter name="type" fixed="wait"/>
+    <parameter name="lx" type="nonNegativeInteger"/>
+    <parameter name="ly" type="nonNegativeInteger"/>
+    <parameter name="x_amount" type="nonNegativeInteger"/>
+    <parameter name="y_amount" type="nonNegativeInteger"/>
+    <parameter name="button" type="string"/>
+    <parameter name="urls" type="string"/>
+    <parameter name="default" type="string"/>
   </message>
   <message name="deleteframe">
     <parameter name="lx" type="string"/>
@@ -59,7 +71,7 @@
   <message name="json">
     <parameter name="value" mimetype="application/json"/>
   </message>
-  
+
   <message name="string"> <!--{{{-->
     <parameter name="value" type="string"/>
   </message> <!--}}}-->
@@ -67,15 +79,21 @@
   <resource>
     <resource>
       <get out="ui"/>
-      <put in='input'/>
-      
-      <put in='frame' out="callback"/>
-      <post in='frame'/>
+
+      <!-- create new Frame -->
+      <post in='input'/>
+      <!-- Set Frame Data with callback -->
+      <put in='wframe' out="callback"/>
+      <!-- Set Frame Data without callback -->
+      <put in='sframe'/>
+
+
+
       <post in='deleteframe'/>
-      
-      
-      
-      
+
+
+
+
       <delete in='opa'/>
       <delete in='opb'/>
       <resource relative='sse'>
@@ -101,16 +119,16 @@
         <get out="json"/>
         <post />
       </resource>
-      
-      
+
+
       <resource relative="test">
         <put in="string"/>
       </resource>
-        
-      
+
+
       <resource relative='handler'>
         <post />
-        
+
         <resource relative='sse'>
           <sse/>
         </resource>
