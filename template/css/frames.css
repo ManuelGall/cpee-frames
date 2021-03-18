@@ -1,13 +1,17 @@
-*{
+* {
   box-sizing: border-box;
   padding: 0;
   margin: 0;
 }
 
-
 :root {
   --grid-cols: 1;
   --grid-rows: 1;
+}
+
+body {
+  width: 100vw;
+  height: 100vh;
 }
 
 #container {
@@ -16,9 +20,9 @@
   grid-auto-rows: calc(100vh/var(--grid-rows));
   grid-auto-columns: calc(100vw/var(--grid-cols));
   grid-template-columns: repeat(var(--grid-cols), 1fr);
-  width: 100vw;
-  height: 100vh;
   overflow: hidden;
+  width: 100%;
+  height: 100%;
 }
 
 .grid-item {

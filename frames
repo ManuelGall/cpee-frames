@@ -27,7 +27,7 @@ require 'typhoeus'
 # https://centurio.work/customers/evva/flow/?monitor=https://centurio.work/flow-test/engine/729/
 
 class Get < Riddl::Implementation
-  def response    
+  def response
     if @r[0] == 'test'
       Riddl::Parameter::Complex.new('ui','text/html',File.open(File.join(__dir__,'template','test.html')))
     elsif @r[0] == 'menu'
@@ -43,18 +43,16 @@ end
 class InitFrame < Riddl::Implementation
   def response
     Dir.mkdir(File.join('data',@r.last)) rescue nil
-    
+
     if @p[0].value.to_s.strip.empty?
-      File.write(File.join('data',@r.last,'style.url'), "../css/frames.css")
-    else
       File.write(File.join('data',@r.last,'style.url'),@p[0].value)
     end
-    
+
     File.write(File.join('data',@r.last,'frames.json'),JSON.dump(JSON.parse('{"data":[]}')))
-    
+
     #for handler
     File.write(File.join('data',@r.last,'dataelements.json'),JSON.dump(JSON.parse('{"data":[]}')))
-    
+
     File.write(File.join('data',@r.last,'info.json'),JSON.dump(JSON.parse('{"x_amount":' + @p[2].value + ', "y_amount":' + @p[3].value + ', "lang":"' + @p[4].value  + '", "langs":["' + @p[4].value +  '"]}')))
 
     File.write(File.join('data',@r.last,'callback'),@h['CPEE_CALLBACK'])
@@ -64,7 +62,7 @@ class InitFrame < Riddl::Implementation
     nil
   end
 
-  
+
   #def headers
   #  Riddl::Header.new('CPEE-CALLBACK', 'true')
   #end
@@ -83,25 +81,33 @@ end
 
 
 class NewFrameSet < Riddl::Implementation
-  def response    
-  
-    
+  def response
+
+
     path = File.join('data',@r.last,'frames.json')
     file = File.read(path)
     data_hash = JSON::parse(file)
-    
+
     #check if new frame overlaps others if it does, delete overlapped frames
     data_hash["data"].each do | c |
       if doOverlap(c['lx'], c['ly'], c['rx'], c['ry'], @p[1].value.to_i, @p[2].value.to_i, (@p[1].value.to_i + @p[3].value.to_i - 1), (@p[2].value.to_i + @p[4].value.to_i - 1))
         data_hash["data"].delete(c)
       end
     end
-    
+
     urls = JSON::parse(@p[6].value);
-    hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: urls, showbutton: @p[5].value, default: JSON::parse(@p[7].value), callback: @h['CPEE_CALLBACK']};
+
+
+    if @p[7].value == ""
+      hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: urls, showbutton: @p[5].value, default: "{}", callback: @h['CPEE_CALLBACK']};
+    else
+      hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: urls, showbutton: @p[5].value, default: JSON::parse(@p[7].value), callback: @h['CPEE_CALLBACK']};
+    end
+
+
     data_hash["data"].push(hash)
     File.write(path, JSON.dump(data_hash))
-    
+
     #only send active url to client
     infofile = File.join('data',@r.last,'info.json')
     infojson = JSON::parse(File.read(infofile))
@@ -109,36 +115,34 @@ class NewFrameSet < Riddl::Implementation
 
     @a[0].send(JSON.dump(hash))
     nil
- 
+
   end
 end
 
 
 
 class NewFrameWait < Riddl::Implementation
-  def response    
+  def response
     path = File.join('data',@r.last,'frames.json')
     file = File.read(path)
     data_hash = JSON::parse(file)
-    
+
     #check if new frame overlaps others if it does, delete overlapped frames
     data_hash["data"].each do | c |
       if doOverlap(c['lx'], c['ly'], c['rx'], c['ry'], @p[1].value.to_i, @p[2].value.to_i, (@p[1].value.to_i + @p[3].value.to_i - 1), (@p[2].value.to_i + @p[4].value.to_i - 1))
         data_hash["data"].delete(c)
       end
     end
-    
+
     urls = JSON::parse(@p[6].value);
     if @p[7].value == ""
-      puts "AAA";
       hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: urls, showbutton: @p[5].value, default: "{}", callback: @h['CPEE_CALLBACK']};
     else
-      puts "BBB";
       hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: urls, showbutton: @p[5].value, default: JSON::parse(@p[7].value), callback: @h['CPEE_CALLBACK']};
     end
     data_hash["data"].push(hash)
     File.write(path, JSON.dump(data_hash))
-    
+
     #only send active url to client
     infofile = File.join('data',@r.last,'info.json')
     infojson = JSON::parse(File.read(infofile))
@@ -154,30 +158,30 @@ end
 
 
 class DeleteFrame < Riddl::Implementation
-  def response    
+  def response
     path = File.join('data',@r.last,'frames.json')
     file = File.read(path)
     data_hash = JSON::parse(file)
-    
+
     data_hash["data"].each do | c |
       if doOverlap(c['lx'], c['ly'], c['rx'], c['ry'], @p[0].value.to_i, @p[1].value.to_i, (@p[0].value.to_i + 1), (@p[1].value.to_i + 1))
         data_hash["data"].delete(c)
       end
     end
-    
+
     File.write(path, JSON.dump(data_hash))
   end
 end
 
 
-def doOverlap(l1x, l1y, r1x, r1y, l2x, l2y, r2x, r2y) 
+def doOverlap(l1x, l1y, r1x, r1y, l2x, l2y, r2x, r2y)
   if l1x > r2x || l2x > r1x
       return false;
   end
   if l1y > r2y || l2y > r1y
       return false;
   end
-  return true; 
+  return true;
 end
 
 
@@ -213,17 +217,17 @@ class GetFrames < Riddl::Implementation #{{{
   def response
     fname = File.join('data',@r[-2],'frames.json')
     if File.exists? fname
-    
+
       infofile = File.join('data',@r[-2],'info.json')
       infojson = JSON::parse(File.read(infofile))
-      
+
       #remove not used languages
       file = JSON::parse(File.read(fname))
-      
+
       file["data"].each do |child|
         child["url"] = child["url"].find{ |h| h['lang'] == infojson["lang"]}['url']
       end
-      
+
       Riddl::Parameter::Complex.new('value','application/json',JSON.dump(file))
     else
       @status = 404
@@ -233,21 +237,21 @@ end #}}}
 
 
 class SetDataElements < Riddl::Implementation #{{{
-  def response    
+  def response
     savejson = @p.map { |o| Hash[o.name, o.value] }.to_json
     path = File.join('data',@r[0],'dataelements.json')
     File.write(path, savejson)
-    
+
     #puts xyz
-    
+
     #puts JSON.pretty_generate(@p.to_json)
-    
-    
-    
+
+
+
     #puts @p.length()
     #puts @p[0].name
     #puts @p[0].value
-    
+
     #fname = File.join('data',@r[-2],'dataelements.json')
     #if File.exists? fname
     #  Riddl::Parameter::Complex.new('value','application/json',File.read(fname))
@@ -298,17 +302,17 @@ class SetLang < Riddl::Implementation #{{{
     if File.exists? fname
       infojson = JSON::parse(File.read(fname))
       infojson["lang"] = @p[0].value
-      
-      
+
+
       #add to langs
       if !infojson["langs"].include?(@p[0].value)
         infojson["langs"].push(@p[0].value)
       end
-      
+
       File.write(fname, JSON.dump(infojson))
-      
-      
-      
+
+
+
       @a[0].send('reset')
       nil
     else
@@ -352,35 +356,35 @@ end #}}}
 
 
 class Handler < Riddl::Implementation
-  def response    
+  def response
     puts "handler"
-  
+
       topic         = @p[1].value
       event_name    = @p[2].value
       notification  = JSON.parse(@p[3].value.read)
-      
-      
+
+
       instancenr = notification['instance']
       content = notification['content']
       activity = content['activity']
       parameters = content['parameters']
       receiving = content['received']
-  
+
       #puts instancenr
       #puts activity
       puts content['values']
-      
-      
+
+
       if content['values']&.any?
         #puts alldata['ausfuehrungen']
         puts "writing file"
         path = File.join('data',@r[0],'dataelements.json')
         File.write(path, JSON.dump(content['values']))
       end
-  
+
       @a[0].send(@r[0])
       nil
-  
+
     nil
   end
 end
@@ -471,27 +475,27 @@ server = Riddl::Server.new(File.join(__dir__,'/frames.xml'), :host => 'localhost
 
       run Get, "test" if get
       run InitFrame, opts[:signals][idx] if post 'input'
-      
+
       run NewFrameSet, opts[:signals][idx] if put 'sframe'
       run NewFrameWait, opts[:signals][idx] if put 'wframe'
-      
+
       run DeleteFrame, opts[:signals][idx] if post 'deleteframe'
-      
-      
-      
-      
-      
-      
-      
+
+
+
+
+
+
+
       on resource 'handler' do
-        run Handler, opts[:signals2]["handler"] if post 
+        run Handler, opts[:signals2]["handler"] if post
         on resource 'sse' do
           run SSE2, opts[:signals2]["handler"] if sse
         end
-      end 
-      
-      
-      
+      end
+
+
+
       run Delete, opts[:signals][idx] if delete 'opa'
       run Delete, opts[:signals][idx] if delete 'opb'
       on resource 'sse' do
@@ -516,13 +520,13 @@ server = Riddl::Server.new(File.join(__dir__,'/frames.xml'), :host => 'localhost
       on resource 'test' do
         run OutputTest if put
       end
-      
+
       on resource 'dataelements.json' do
         run SetDataElements if post
         run GetDataElements if get
       end
-      
-      
+
+
     end
   end
 end.loop!

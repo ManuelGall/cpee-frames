@@ -58,9 +58,10 @@ function makeFrame(lx, ly, rx, ry, content = "", id = "", defaultpara = "", show
   
   if(content != null && content != ""){
   
-    var fullurl = content + "?";
+    var fullurl = content;
     //encode default parameter in URL
     if(defaultpara != "{}"){
+      var fullurl = fullurl + "?";
       for (var key in defaultpara) {
         if (defaultpara.hasOwnProperty(key)) {
           fullurl = fullurl + key + "=" +  defaultpara[key] + "&";
@@ -68,11 +69,11 @@ function makeFrame(lx, ly, rx, ry, content = "", id = "", defaultpara = "", show
       }
     }
     
-    
     //defaultpara
     console.log(defaultpara);
     
     
+    fullurl = encodeURI(fullurl);
     $(".item" + lx + "-" + ly).html("<iframe width=100% height=100% name='" + id +"' id='" + id +"' src='" + fullurl + "' title='' frameBorder='0' ></iframe>");
             
     if(showbutton){
