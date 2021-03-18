@@ -15,7 +15,7 @@ function doOverlap(l1x, l1y, r1x, r1y, l2x, l2y, r2x, r2y) {
 }
 
 
-function makeFrame(lx, ly, rx, ry, content = "", id = "", defaultpara = "", showbutton = "") {
+function makeFrame(lx, ly, rx, ry, content = "", id = "", defaultpara = "", showbutton = "", style = "") {
   //check if rects overlap if they do remove old ones
   for (i = 0; i < window.storage.length; i++) {
     if(doOverlap(window.storage[i].lx, window.storage[i].ly, window.storage[i].rx, window.storage[i].ry, lx, ly, rx, ry)){
@@ -69,8 +69,6 @@ function makeFrame(lx, ly, rx, ry, content = "", id = "", defaultpara = "", show
       }
     }
     
-    //defaultpara
-    console.log(defaultpara);
     
     
     fullurl = encodeURI(fullurl);
@@ -79,6 +77,15 @@ function makeFrame(lx, ly, rx, ry, content = "", id = "", defaultpara = "", show
     if(showbutton){
       $(".item" + lx + "-" + ly).append('<button class="formbutton" type="button" onclick="sendForm(\'' + '.item' + lx + '-' + ly +'\', \'' + encodeURIComponent(id) + '\', \'' + lx  + '\', \'' + ly  + '\')">' + showbutton + '</button>')
     }
+    
+    if(style){    
+      $(".item" + lx + "-" + ly).find("iframe").on('load', function(){
+        $(this).contents().find("head").append($("<link/>", 
+          { rel: "stylesheet", href: style, type: "text/css" }
+        ));
+      });      
+    }
+    
     
     //hideRectangel(lx, ly, rx, ry)
   }
@@ -180,7 +187,7 @@ function showDocument() {
         url: 'frames.json',
         success: function(ret2) {
           for (i in ret2.data) {
-            makeFrame(ret2.data[i].lx,ret2.data[i].ly,ret2.data[i].rx,ret2.data[i].ry, ret2.data[i].url, ret2.data[i].callback, ret2.data[i].default, ret2.data[i].showbutton);
+            makeFrame(ret2.data[i].lx,ret2.data[i].ly,ret2.data[i].rx,ret2.data[i].ry, ret2.data[i].url, ret2.data[i].callback, ret2.data[i].default, ret2.data[i].showbutton, ret2.data[i].style);
           }
         }
       });
@@ -308,7 +315,7 @@ function init() {
         try {
           //alert(e.data)
           var frd = JSON.parse(e.data)
-          makeFrame(frd.lx,frd.ly,frd.rx,frd.ry, frd.url, frd.callback, frd.default, frd.showbutton);
+          makeFrame(frd.lx,frd.ly,frd.rx,frd.ry, frd.url, frd.callback, frd.default, frd.showbutton, frd.style);
         }
         catch (e) {
         }

@@ -31,6 +31,7 @@
     <parameter name="x_amount" type="nonNegativeInteger"/>
     <parameter name="y_amount" type="nonNegativeInteger"/>
     <parameter name="button" type="string"/>
+    <parameter name="style" type="string"/>
     <parameter name="urls" type="string"/>
     <parameter name="default" type="string"/>
   </message>
@@ -41,6 +42,7 @@
     <parameter name="x_amount" type="nonNegativeInteger"/>
     <parameter name="y_amount" type="nonNegativeInteger"/>
     <parameter name="button" type="string"/>
+    <parameter name="style" type="string"/>
     <parameter name="urls" type="string"/>
     <parameter name="default" type="string"/>
   </message>

@@ -68,7 +68,6 @@ class InitFrame < Riddl::Implementation
   #end
 end
 
-
 #https://coderwall.com/p/atyfyq/ruby-string-to-boolean
 #showbutton
 class String
@@ -78,7 +77,6 @@ class String
     raise ArgumentError.new("invalid value for Boolean: \"#{self}\"")
   end
 end
-
 
 class NewFrameSet < Riddl::Implementation
   def response
@@ -95,15 +93,14 @@ class NewFrameSet < Riddl::Implementation
       end
     end
 
-    urls = JSON::parse(@p[6].value);
+    urls = JSON::parse(@p[7].value);
 
 
-    if @p[7].value == ""
-      hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: urls, showbutton: @p[5].value, default: "{}", callback: @h['CPEE_CALLBACK']};
+    if @p[8].value == ""
+      hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: urls, showbutton: @p[5].value, style: @p[6].value, default: "{}", callback: @h['CPEE_CALLBACK']};
     else
-      hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: urls, showbutton: @p[5].value, default: JSON::parse(@p[7].value), callback: @h['CPEE_CALLBACK']};
+      hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: urls, showbutton: @p[5].value,  style: @p[6].value, default: JSON::parse(@p[8].value), callback: @h['CPEE_CALLBACK']};
     end
-
 
     data_hash["data"].push(hash)
     File.write(path, JSON.dump(data_hash))
@@ -119,8 +116,6 @@ class NewFrameSet < Riddl::Implementation
   end
 end
 
-
-
 class NewFrameWait < Riddl::Implementation
   def response
     path = File.join('data',@r.last,'frames.json')
@@ -134,11 +129,11 @@ class NewFrameWait < Riddl::Implementation
       end
     end
 
-    urls = JSON::parse(@p[6].value);
-    if @p[7].value == ""
-      hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: urls, showbutton: @p[5].value, default: "{}", callback: @h['CPEE_CALLBACK']};
+    urls = JSON::parse(@p[7].value);
+    if @p[8].value == ""
+      hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: urls, showbutton: @p[5].value, style: @p[6].value, default: "{}", callback: @h['CPEE_CALLBACK']};
     else
-      hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: urls, showbutton: @p[5].value, default: JSON::parse(@p[7].value), callback: @h['CPEE_CALLBACK']};
+      hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: urls, showbutton: @p[5].value, style: @p[6].value, default: JSON::parse(@p[8].value), callback: @h['CPEE_CALLBACK']};
     end
     data_hash["data"].push(hash)
     File.write(path, JSON.dump(data_hash))
@@ -156,7 +151,6 @@ class NewFrameWait < Riddl::Implementation
   end
 end
 
-
 class DeleteFrame < Riddl::Implementation
   def response
     path = File.join('data',@r.last,'frames.json')
@@ -173,7 +167,6 @@ class DeleteFrame < Riddl::Implementation
   end
 end
 
-
 def doOverlap(l1x, l1y, r1x, r1y, l2x, l2y, r2x, r2y)
   if l1x > r2x || l2x > r1x
       return false;
@@ -183,10 +176,6 @@ def doOverlap(l1x, l1y, r1x, r1y, l2x, l2y, r2x, r2y)
   end
   return true;
 end
-
-
-
-
 
 class Delete < Riddl::Implementation
   def response
@@ -212,7 +201,6 @@ class Delete < Riddl::Implementation
   end
 end
 
-
 class GetFrames < Riddl::Implementation #{{{
   def response
     fname = File.join('data',@r[-2],'frames.json')
@@ -234,7 +222,6 @@ class GetFrames < Riddl::Implementation #{{{
     end
   end
 end #}}}
-
 
 class SetDataElements < Riddl::Implementation #{{{
   def response
@@ -271,7 +258,6 @@ class GetDataElements < Riddl::Implementation #{{{
     end
   end
 end #}}}
-
 
 class GetInfo < Riddl::Implementation #{{{
   def response
@@ -343,17 +329,11 @@ class GetCpeeInstance < Riddl::Implementation #{{{
   end
 end #}}}
 
-
-
 class OutputTest < Riddl::Implementation #{{{
   def response
     puts "Test"
   end
 end #}}}
-
-
-
-
 
 class Handler < Riddl::Implementation
   def response
@@ -389,10 +369,6 @@ class Handler < Riddl::Implementation
   end
 end
 
-
-
-
-
 class SSE < Riddl::SSEImplementation #{{{
   def onopen
     signals = @a[0]
@@ -407,8 +383,6 @@ class SSE < Riddl::SSEImplementation #{{{
     nil
   end
 end #}}}
-
-
 
 class SSE2 < Riddl::SSEImplementation #{{{
   def onopen
@@ -481,20 +455,12 @@ server = Riddl::Server.new(File.join(__dir__,'/frames.xml'), :host => 'localhost
 
       run DeleteFrame, opts[:signals][idx] if post 'deleteframe'
 
-
-
-
-
-
-
       on resource 'handler' do
         run Handler, opts[:signals2]["handler"] if post
         on resource 'sse' do
           run SSE2, opts[:signals2]["handler"] if sse
         end
       end
-
-
 
       run Delete, opts[:signals][idx] if delete 'opa'
       run Delete, opts[:signals][idx] if delete 'opb'
