@@ -1,6 +1,4 @@
 var reason ="";
-
-
 var storage = []; //{col:1, row:1, colamount:1, rowamount: 1}];
 
 
