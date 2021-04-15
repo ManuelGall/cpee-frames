@@ -44,7 +44,7 @@ class InitFrame < Riddl::Implementation
   def response
     Dir.mkdir(File.join('data',@r.last)) rescue nil
 
-    if @p[0].value.to_s.strip.empty?
+    if !@p[0].value.to_s.empty?
       File.write(File.join('data',@r.last,'style.url'),@p[0].value)
     end
 
