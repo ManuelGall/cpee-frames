@@ -53,7 +53,7 @@ class InitFrame < Riddl::Implementation
     #for handler
     File.write(File.join('data',@r.last,'dataelements.json'),JSON.dump(JSON.parse('{"data":[]}')))
 
-    File.write(File.join('data',@r.last,'info.json'),JSON.dump(JSON.parse('{"x_amount":' + @p[2].value + ', "y_amount":' + @p[3].value + ', "lang":"' + @p[4].value  + '", "langs":["' + @p[4].value +  '"]}')))
+    File.write(File.join('data',@r.last,'info.json'),JSON.dump(JSON.parse('{"x_amount":' + @p[2].value + ', "y_amount":' + @p[3].value + ', "lang":"' + @p[4].value  + '", "langs":["' + @p[4].value +  '"], "document_name": "' + @p[5].value + '"}')))
 
     File.write(File.join('data',@r.last,'callback'),@h['CPEE_CALLBACK'])
     File.write(File.join('data',@r.last,'cpeeinstance.url'),@h['CPEE_INSTANCE_URL'])

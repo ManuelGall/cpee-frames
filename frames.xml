@@ -23,6 +23,7 @@
     <parameter name="x_amount" type="string"/>
     <parameter name="y_amount" type="string"/>
     <parameter name="lang" type="string"/>
+    <parameter name="document_name" type="string"/>
   </message>
   <message name="sframe">
     <parameter name="type" fixed="set"/>

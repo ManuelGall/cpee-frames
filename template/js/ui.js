@@ -180,6 +180,8 @@ function showDocument() {
     url: 'info.json',
     success: function(ret) {
       makeGrid(ret.x_amount, ret.y_amount);
+      //set name
+      document.title = ret.document_name;
       $.ajax({
         type: "GET",
         url: 'frames.json',
