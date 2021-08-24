@@ -186,9 +186,9 @@ function showDocument() {
         type: "GET",
         url: 'frames.json',
         success: function(ret2) {
-          for (i in ret2.data) {
-            makeFrame(ret2.data[i].lx,ret2.data[i].ly,ret2.data[i].rx,ret2.data[i].ry, ret2.data[i].url, ret2.data[i].callback, ret2.data[i].default, ret2.data[i].showbutton, ret2.data[i].style);
-          }
+          for (i of ret2.data) {
+            makeFrame(i.lx,i.ly,i.rx,i.ry, i.url, i.callback, i.default, i.showbutton, i.style);
+          } 
         }
       });
     },
