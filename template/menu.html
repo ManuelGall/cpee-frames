@@ -1,0 +1,71 @@
+<!--
+  This file is part of centurio.work/out/frame.
+
+  centurio.work/out/frame is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by the Free
+  Software Foundation, either version 3 of the License, or (at your option) any
+  later version.
+
+  centurio.work/out/frame is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+  more details.
+
+  You should have received a copy of the GNU General Public License along with
+  centurio.work/out/frame (file LICENSE in the main directory). If not, see
+  <http://www.gnu.org/licenses/>.
+-->
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="de" xml:lang="de">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>menu frame</title>
+
+    <!-- libs, do not modify. When local than load local libs. -->
+    <script type="text/javascript" src="/js_libs/jquery.min.js"></script>
+    <script type="text/javascript" src="/js_libs/jquery.browser.js"></script>
+    <script type="text/javascript" src="/js_libs/jquery.svg.min.js"></script>
+    <script type="text/javascript" src="/js_libs/jquery.svgdom.min.js"></script>
+    <script type="text/javascript" src="/js_libs/vkbeautify.js"></script>
+    <script type="text/javascript" src="/js_libs/util.js"></script>
+    <script type="text/javascript" src="/js_libs/printf.js"></script>
+    <script type="text/javascript" src="/js_libs/strftime.min.js"></script>
+    <script type="text/javascript" src="/js_libs/parsequery.js"></script>
+    <script type="text/javascript" src="/js_libs/underscore.min.js"></script>
+    <script type="text/javascript" src="/js_libs/jquery.caret.min.js"></script>
+    <script type="text/javascript" src="/js_libs/jquery.cookie.js"></script>
+
+    <!-- custom stuff, play arround  -->
+    <script type="text/javascript" src="../js/test.js"></script>
+    <link rel="stylesheet" href="../css/design.css" type="text/css"/>
+    <link class='custom' rel="stylesheet" href="" type="text/css"/>
+    <script>
+      if (location.href.match(/\/$/) == null) {
+        location.href = location.href + '/';
+      }
+
+      function openlink(menuitem){
+        var menu = { name: menuitem };
+
+        $.ajax({
+          type: "PUT",
+          url: window.name,
+          contentType: "application/json",
+          data: JSON.stringify(menu),
+          success: function (data) {
+
+          }
+        });
+
+
+        //alert(xyz);
+      }
+
+    </script>
+  </head>
+  <body is="x-ui">
+    <a href="javascript:openlink('Centurio');">Centurio</a>
+    <a href="javascript:openlink('WAS');">WAS</a>
+  </body>
+</html>
