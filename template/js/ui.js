@@ -14,6 +14,8 @@ function doOverlap(l1x, l1y, r1x, r1y, l2x, l2y, r2x, r2y) {
 
 
 function makeFrame(lx, ly, rx, ry, content = "", id = "", defaultpara = "", showbutton = "", style = "") {
+  
+  
   //check if rects overlap if they do remove old ones
   for (i = 0; i < window.storage.length; i++) {
     if(doOverlap(window.storage[i].lx, window.storage[i].ly, window.storage[i].rx, window.storage[i].ry, lx, ly, rx, ry)){
@@ -23,72 +25,76 @@ function makeFrame(lx, ly, rx, ry, content = "", id = "", defaultpara = "", show
       --i;
     }
   }
-  
-  //add new ellement to storage
-  window.storage.push({lx:lx, ly:ly, rx:rx, ry: ry})
-  
-  const container = document.getElementById("container");
-  let cell = document.createElement("div");
-  cell.classList.add("grid-item");
-  cell.classList.add("item" + lx + "-" + ly);
+  console.log(content);
+  if(content != "empty"){
+  console.log("drinn");
+    
+    //add new ellement to storage
+    window.storage.push({lx:lx, ly:ly, rx:rx, ry: ry})
+    
+    const container = document.getElementById("container");
+    let cell = document.createElement("div");
+    cell.classList.add("grid-item");
+    cell.classList.add("item" + lx + "-" + ly);
 
-  spancol= ""
-  if(rx-lx+1 > 1){
-    spancol = " / span " + (rx-lx+1);
+    spancol= ""
+    if(rx-lx+1 > 1){
+      spancol = " / span " + (rx-lx+1);
+      
+    }
     
-  }
-  
-  spanrow= ""
-  if(ry-ly+1 > 1){
-    spanrow = " / span " + (ry-ly+1);
-  }
-  
-  jQuery.cssNumber.gridColumnStart = true;
-  jQuery.cssNumber.gridColumnEnd = true;
-  jQuery.cssNumber.gridRowStart = true;
-  jQuery.cssNumber.gridRowEnd = true;
-  
-  $(cell).css({"grid-column": (lx+1) + spancol,  "grid-row": ly+1 + spanrow});
-  
-  container.appendChild(cell);
-  //Create new element with width, heigth and content
-  //$(".item" + lx + "-" + ly).css({"display": "block", "border-style": "solid", "border-color": "blue", "grid-column": (lx+1) + " / span " + (rx-lx+1),  "grid-row": ly+1 + " / span " + (ry-ly+1)});
-  
-  if(content != null && content != ""){
-  
-    var fullurl = content;
-    //encode default parameter in URL
-    if(defaultpara != "{}"){
-      var fullurl = fullurl + "?";
-      for (var key in defaultpara) {
-        if (defaultpara.hasOwnProperty(key)) {
-          fullurl = fullurl + key + "=" +  defaultpara[key] + "&";
-         }
+    spanrow= ""
+    if(ry-ly+1 > 1){
+      spanrow = " / span " + (ry-ly+1);
+    }
+    
+    jQuery.cssNumber.gridColumnStart = true;
+    jQuery.cssNumber.gridColumnEnd = true;
+    jQuery.cssNumber.gridRowStart = true;
+    jQuery.cssNumber.gridRowEnd = true;
+    
+    $(cell).css({"grid-column": (lx+1) + spancol,  "grid-row": ly+1 + spanrow});
+    
+    container.appendChild(cell);
+    //Create new element with width, heigth and content
+    //$(".item" + lx + "-" + ly).css({"display": "block", "border-style": "solid", "border-color": "blue", "grid-column": (lx+1) + " / span " + (rx-lx+1),  "grid-row": ly+1 + " / span " + (ry-ly+1)});
+    
+    if(content != null && content != ""){
+    
+      var fullurl = content;
+      //encode default parameter in URL
+      if(defaultpara != "{}"){
+        var fullurl = fullurl + "?";
+        for (var key in defaultpara) {
+          if (defaultpara.hasOwnProperty(key)) {
+            fullurl = fullurl + key + "=" +  defaultpara[key] + "&";
+           }
+        }
       }
+      
+      
+      
+      fullurl = encodeURI(fullurl);
+      $(".item" + lx + "-" + ly).html("<iframe width=100% height=100% name='" + id +"' id='" + id +"' src='" + fullurl + "' title='' frameBorder='0' ></iframe>");
+              
+      if(showbutton){
+        $(".item" + lx + "-" + ly).append('<button class="formbutton" type="button" onclick="sendForm(\'' + '.item' + lx + '-' + ly +'\', \'' + encodeURIComponent(id) + '\', \'' + lx  + '\', \'' + ly  + '\')">' + showbutton + '</button>')
+      }
+      
+      if(style){    
+        $(".item" + lx + "-" + ly).find("iframe").on('load', function(){
+          $(this).contents().find("head").append($("<link/>", 
+            { rel: "stylesheet", href: style, type: "text/css" }
+          ));
+        });      
+      }
+      
+      
+      //hideRectangel(lx, ly, rx, ry)
     }
-    
-    
-    
-    fullurl = encodeURI(fullurl);
-    $(".item" + lx + "-" + ly).html("<iframe width=100% height=100% name='" + id +"' id='" + id +"' src='" + fullurl + "' title='' frameBorder='0' ></iframe>");
-            
-    if(showbutton){
-      $(".item" + lx + "-" + ly).append('<button class="formbutton" type="button" onclick="sendForm(\'' + '.item' + lx + '-' + ly +'\', \'' + encodeURIComponent(id) + '\', \'' + lx  + '\', \'' + ly  + '\')">' + showbutton + '</button>')
+    else{
+      $(".item" + lx + "-" + ly).html("No language available.<br> Nicht in der Sprache verfügbar.");
     }
-    
-    if(style){    
-      $(".item" + lx + "-" + ly).find("iframe").on('load', function(){
-        $(this).contents().find("head").append($("<link/>", 
-          { rel: "stylesheet", href: style, type: "text/css" }
-        ));
-      });      
-    }
-    
-    
-    //hideRectangel(lx, ly, rx, ry)
-  }
-  else{
-    $(".item" + lx + "-" + ly).html("No language available.<br> Nicht in der Sprache verfügbar.");
   }
   
 }
@@ -289,6 +295,10 @@ function clearDocument() {
   $('#control .added').remove();
   $('#content .added').remove();
   $('#reason').text(reason);
+}
+
+function reloadAllFrames() {
+  location.reload();
 }
 
 
