@@ -26,6 +26,20 @@ require 'typhoeus'
 # process:
 # https://centurio.work/customers/evva/flow/?monitor=https://centurio.work/flow-test/engine/729/
 
+class GetTutorial < Riddl::Implementation
+  def response
+    Riddl::Parameter::Complex.new('ui','text/html',File.open(File.join(__dir__,'template','tutorial.html')))
+  end
+end
+
+
+class GetAllConfigs < Riddl::Implementation
+  def response  
+    Dir.chdir( __dir__  + '/data')
+    Riddl::Parameter::Complex.new('list','application/json',JSON::pretty_generate(Dir.glob('*/').sort_by{|x| x.downcase}))
+  end
+end
+
 class Get < Riddl::Implementation
   def response
     if @r[0] == 'test'
@@ -455,6 +469,14 @@ server = Riddl::Server.new(File.join(__dir__,'/frames.xml'), :host => 'localhost
 
 
   on resource do
+    run GetTutorial if get
+    
+    on resource 'getConfigs' do
+        run GetAllConfigs if get
+    end
+
+    
+    
     on resource do |r|
       idx = r[:r][0]
       opts[:signals][idx] ||= Signaling.new

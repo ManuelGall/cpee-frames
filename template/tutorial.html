@@ -1,0 +1,170 @@
+<!--
+  This file is part of centurio.work/out/frame.
+
+  centurio.work/out/frame is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by the Free
+  Software Foundation, either version 3 of the License, or (at your option) any
+  later version.
+
+  centurio.work/out/frame is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+  more details.
+
+  You should have received a copy of the GNU General Public License along with
+  centurio.work/out/frame (file LICENSE in the main directory). If not, see
+  <http://www.gnu.org/licenses/>.
+-->
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="de" xml:lang="de">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>Frames - Tutorial</title>
+
+    <!-- libs, do not modify. When local than load local libs. -->
+    <script type="text/javascript" src="/js_libs/jquery.min.js"></script>
+    <script type="text/javascript" src="/js_libs/jquery.browser.js"></script>
+    <script type="text/javascript" src="/js_libs/jquery.svg.min.js"></script>
+    <script type="text/javascript" src="/js_libs/jquery.svgdom.min.js"></script>
+    <script type="text/javascript" src="/js_libs/vkbeautify.js"></script>
+    <script type="text/javascript" src="/js_libs/util.js"></script>
+    <script type="text/javascript" src="/js_libs/printf.js"></script>
+    <script type="text/javascript" src="/js_libs/strftime.min.js"></script>
+    <script type="text/javascript" src="/js_libs/parsequery.js"></script>
+    <script type="text/javascript" src="/js_libs/underscore.min.js"></script>
+    <script type="text/javascript" src="/js_libs/jquery.caret.min.js"></script>
+    <script type="text/javascript" src="/js_libs/jquery.cookie.js"></script>
+
+    <!-- custom stuff, play arround  -->
+    <link class='custom' rel="stylesheet" href="" type="text/css"/>
+    <script>
+      if (location.href.match(/\/$/) == null) {
+        location.href = location.href + '/';
+      }
+    </script>
+  </head>
+  <body is="x-ui">
+    <div id="container">
+    
+      First Steps:<br>
+        <ul>
+
+          <li>define Endpoint: *adapt to your needs*</li>
+          <ul>
+            <li>init: https-post://centurio.work/out/frames/</li>
+            <li>frames: https-put://centurio.work/out/frames/</li>
+          </ul>
+          <li>define Data Element: (url where your frame will be reached)</li>
+          <ul>
+            <li><a href="https://centurio.evva.com/out/frames/getConfigs">check if frame is not already in use </a></li>
+            <li>frameID: YourFrameName</a></li>
+          </ul>
+          <li>Create Init Activity</li>
+          <ul>
+            <li>Create a new "Service Call with Script"</li>
+            <li>Set the Endpoint to "init"</li>
+            <li>Set your arguments e.g. width: 10, height:10, languge: de-at and some title</li>
+            <li>Set the Prepare Code to: "endpoints.init = File.join(endpoints.init,data.frameID)" where data.frameID is the name from the variable we created before</li>
+          </ul>
+          <li>Create Frame Activity</li>
+          <ul>
+            <li>Create a new "Service Call with Script"</li>
+            <li>Set the Endpoint to "frames"</li>
+            <li>Set your argument Type to "Set UI and contion" (default option)
+            <li>Set your other arguments e.g. DisplacementLeft:0, top:0, width:10, Height:10</li>
+            <li>In Section "Form Url" click on the button "New Language"</li>
+            <li>Define the URL that should be displayed</li>
+            <li>Set the Prepare Code to: "endpoints.frames = File.join(endpoints.frames,data.frameID)" where data.frameID is the name from the variable we created before</li>
+
+          </ul>
+          <li>Execute your Process</li>
+          <li>Open your frame URL (add the defined name (YourFrameName) to the url currently open in this browser Window</li>
+        </ul>
+        
+        
+      Ohter Steps:<br>
+        <ul>
+
+          <li>My new frame site process runs through once and then its done</li>
+          <ul>
+            <li>Use an endless loop within your proces engine</li>
+            <li>Be aware that in case you do not wait for input at some point your loop will run a gazillion times per second!!!</li>
+          </ul>
+          <li>Ohhh nooo i forgot the process engine instance that drives my frames application</li>
+          <ul>
+            <li>In the case your site is not empty</li>
+            <ul>
+              <li>Inspect the site (ctrl+shift+c)</li>
+              <li>Find one of your iframes</li>
+              <li>Arguments "name" or "id" will give you the instance ID</li>
+            </ul>
+            <li>In the case your site is empty</li>
+            <ul>
+              <li>HAHA</li>
+              <li>Nah its not that bad, look in your process engine and best thing to do is to use the design service next time</li>
+            </ul>
+          </ul>
+        </ul>
+        
+      There are more Ohter Steps?<br>
+        <ul>
+          <li>My Frame needs to Return something to the process engine Step1</li>
+          <ul>
+            <li>Create a new "Service Call with Script"</li>
+            <li>Set the Endpoint to "frames"</li>
+            <li>Set your argument Type to "Set UI and wait for input"
+            <li>Set your other arguments e.g. DisplacementLeft:0, top:0, width:10, Height:10</li>
+            <li>In Section "Form Url" click on the button "New Language"</li>
+            <li>Define the URL that should be displayed</li>
+            <li>Set the Prepare Code to: "endpoints.frames = File.join(endpoints.frames,data.frameID)" where data.frameID is the name from the variable we created before</li>
+            <li>Set the Finalize Code to: "data.yourDataElementName = result</li>
+            <li>How to return data from your Frame? see Step2 (below)</li>
+          </ul>
+          <li>My Frame needs to Return something to the process engine Step2</li>
+          <ul>
+            <li>You have some fancy html site that wants to send oodles of data back to centurio</li>
+            <li>Within your frame call the javascript function parent.sendJson(window.name,yourJsonDataHere)</li>
+            <li>All you need to change is define "yourJsonDataHere"</li>
+          </ul>
+          <li>I want to delete some frames</li>
+          <ul>
+            <li>Create a new "Service Call with Script"</li>
+            <li>Set the Endpoint to "frames"</li>
+            <li>Set your argument Type to "Set UI and contion" (default option)
+            <li>Set your other arguments e.g. DisplacementLeft:0, top:0, width:10, Height:10 to match the frames you would like to delete</li>
+            <li>Set the Prepare Code to: "endpoints.frames = File.join(endpoints.frames,data.frameID)" where data.frameID is the name from the variable we created before</li>
+            <li>Thats it</li>
+          </ul>
+          <li>Do i need to delete a frame in order to create one at that poisiton?</li>
+          <ul>
+            <li>Nope, when one frame overlaps one or multiple frames the overlapped ones will be deleted automatically</li>
+          </ul>
+        </ul>
+        
+    
+
+    I Would like to use the Forms service:<br>
+      <ul>
+        <li>Will be described soon ;)</li>
+      </ul>
+        
+    Data Handling:<br>
+      <ul>
+        <li>Will be described soon ;)</li>
+      </ul>
+        
+    
+    Other questions you could have: (note this is not other steps!)<br>
+      <ul>
+        <li>I want to do a circular iframe</li>
+        <ul>
+          <li>Why?</li>
+          <li>You have to manage this within your html site</li>
+        </ul>
+      </ul>
+    
+    </div>
+
+  </body>
+</html>

@@ -80,6 +80,13 @@
   </message> <!--}}}-->
 
   <resource>
+    <get out="ui"/>
+    
+    <resource relative="getConfigs">
+      <get out="ui"/>
+    </resource>
+      
+      
     <resource>
       <get out="ui"/>
 

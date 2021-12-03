@@ -359,6 +359,19 @@ function makeGrid(x, y) {
 };
 
 
+//https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/Function/caller
+function sendJson(callback, jsonToSend){
+  $.ajax({
+    type: "PUT",
+    url: callback,
+    contentType: "application/json",
+    data: JSON.stringify(jsonToSend),
+    success: function (data) {
+
+    }
+  });
+}
+
 
 $(document).ready(function() {
   init();
