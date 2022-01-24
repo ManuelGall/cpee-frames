@@ -94,8 +94,6 @@ end
 
 class NewFrameSet < Riddl::Implementation
   def response
-
-
     path = File.join('data',@r.last,'frames.json')
     file = File.read(path)
     data_hash = JSON::parse(file)
@@ -131,6 +129,7 @@ class NewFrameSet < Riddl::Implementation
       File.write(path, JSON.dump(data_hash))
       hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: "empty", showbutton: @p[5].value, style: @p[6].value, default: "{}", callback: @h['CPEE_CALLBACK']};
 
+
       @a[0].send(JSON.dump(hash))
     end
     
@@ -152,8 +151,8 @@ class NewFrameWait < Riddl::Implementation
     end
 
 
-
-
+    #check if url is set
+    if @p[7].value != ""
       urls = JSON::parse(@p[7].value);
       if @p[8].value == ""
         hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: urls, showbutton: @p[5].value, style: @p[6].value, default: "{}", callback: @h['CPEE_CALLBACK']};
@@ -169,8 +168,15 @@ class NewFrameWait < Riddl::Implementation
       hash["url"] = urls.find{ |h| h['lang'] == infojson["lang"]}['url']
 
       @a[0].send(JSON.dump(hash))
-      nil
-    
+    else
+      File.write(path, JSON.dump(data_hash))
+      hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: "empty", showbutton: @p[5].value, style: @p[6].value, default: "{}", callback: @h['CPEE_CALLBACK']};
+
+      @a[0].send(JSON.dump(hash))
+      
+      Typhoeus.put(@h['CPEE_CALLBACK'], body: "No Frame Set")
+    end
+    nil    
     
   end
   def headers
