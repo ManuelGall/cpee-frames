@@ -166,11 +166,17 @@ class NewFrameWait < Riddl::Implementation
       infofile = File.join('data',@r.last,'info.json')
       infojson = JSON::parse(File.read(infofile))
       hash["url"] = urls.find{ |h| h['lang'] == infojson["lang"]}['url']
+      
+      File.write(File.join('data',@r.last,'callback'),@h['CPEE_CALLBACK'])
+
 
       @a[0].send(JSON.dump(hash))
     else
       File.write(path, JSON.dump(data_hash))
       hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: "empty", showbutton: @p[5].value, style: @p[6].value, default: "{}", callback: @h['CPEE_CALLBACK']};
+      
+      File.write(File.join('data',@r.last,'callback'),@h['CPEE_CALLBACK'])
+
 
       @a[0].send(JSON.dump(hash))
       
@@ -212,22 +218,24 @@ end
 
 class Delete < Riddl::Implementation
   def response
+    pp "in delete"
     if cbu = File.read(File.join('data',@r.last,'callback'))
+      pp "XYZ"
       send = { 'operation' => @p[0].value }
       case send['operation']
         when 'result'
           send['target'] = JSON::parse(@p[1].value.read)
       end
       cbu += '/' unless cbu[-1] == '/'
-
+      pp "Sending"
       Typhoeus.put(cbu, body: JSON::generate(send), headers: { 'content-type' => 'application/json'})
     end
 
-    File.unlink(File.join('data',@r.last,'callback')) rescue nil
-    File.unlink(File.join('data',@r.last,'cpeeinstance.url')) rescue nil
-    File.unlink(File.join('data',@r.last,'style.url')) rescue nil
-    File.unlink(File.join('data',@r.last,'document.xml')) rescue nil
-    File.unlink(File.join('data',@r.last,'info.json')) rescue nil
+    #File.unlink(File.join('data',@r.last,'callback')) rescue nil
+    #File.unlink(File.join('data',@r.last,'cpeeinstance.url')) rescue nil
+    #File.unlink(File.join('data',@r.last,'style.url')) rescue nil
+    #File.unlink(File.join('data',@r.last,'document.xml')) rescue nil
+    #File.unlink(File.join('data',@r.last,'info.json')) rescue nil
 
     @a[0].send('reset')
     nil
@@ -505,6 +513,7 @@ server = Riddl::Server.new(File.join(__dir__,'/frames.xml'), :host => 'localhost
 
       run Delete, opts[:signals][idx] if delete 'opa'
       run Delete, opts[:signals][idx] if delete 'opb'
+      run Delete, opts[:signals][idx] if delete 'opc'
       on resource 'sse' do
         run SSE, opts[:signals][idx] if sse
       end
