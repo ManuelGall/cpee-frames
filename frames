@@ -36,9 +36,12 @@ end
 class GetAllConfigs < Riddl::Implementation
   def response  
     Dir.chdir( __dir__  + '/data')
-    Riddl::Parameter::Complex.new('list','application/json',JSON::pretty_generate(Dir.glob('*/').sort_by{|x| x.downcase}))
+    databack = JSON::pretty_generate(Dir.glob('*/').sort_by{|x| x.downcase});
+    Dir.chdir( __dir__)
+    Riddl::Parameter::Complex.new('list','application/json',databack)
   end
 end
+
 
 class Get < Riddl::Implementation
   def response
