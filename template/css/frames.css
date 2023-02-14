@@ -16,7 +16,7 @@ body {
 
 #container {
   display: grid;
-  /*grid-template-rows: repeat(var(--grid-rows), 1fr); not working in Firefox*/
+  grid-template-rows: repeat(var(--grid-rows), 1fr);
   grid-auto-rows: calc(100vh/var(--grid-rows));
   grid-auto-columns: calc(100vw/var(--grid-cols));
   grid-template-columns: repeat(var(--grid-cols), 1fr);

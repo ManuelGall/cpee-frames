@@ -70,7 +70,7 @@ function makeFrame(lx, ly, rx, ry, content = "", id = "", defaultpara = "", show
         fullurl = fullurl.slice(0, -1);
       }
 
-      $(".item" + lx + "-" + ly).html("<iframe name='" + id +"' id='" + id +"' src='" + fullurl + "' title='' frameBorder='0' ></iframe>");
+      $(".item" + lx + "-" + ly).html("<iframe style='height: 100%; width: 100%' name='" + id +"' id='" + id +"' src='" + fullurl + "' title='' frameBorder='0' ></iframe>");
 
       if(showbutton){
         $(".item" + lx + "-" + ly).append('<button class="formbutton" type="button" onclick="sendForm(\'' + '.item' + lx + '-' + ly +'\', \'' + encodeURIComponent(id) + '\', \'' + lx  + '\', \'' + ly  + '\')">' + showbutton + '</button>')
