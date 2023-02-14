@@ -2,20 +2,20 @@ var reason ="";
 var storage = []; //{col:1, row:1, colamount:1, rowamount: 1}];
 
 
-function doOverlap(l1x, l1y, r1x, r1y, l2x, l2y, r2x, r2y) { 
-    // If one rectangle is on left side of other 
-    if (l1x > r2x || l2x > r1x) 
+function doOverlap(l1x, l1y, r1x, r1y, l2x, l2y, r2x, r2y) {
+    // If one rectangle is on left side of other
+    if (l1x > r2x || l2x > r1x)
         return false;
-    // If one rectangle is above other 
-    if (l1y > r2y || l2y > r1y) 
+    // If one rectangle is above other
+    if (l1y > r2y || l2y > r1y)
         return false;
-    return true; 
+    return true;
 }
 
 
 function makeFrame(lx, ly, rx, ry, content = "", id = "", defaultpara = "", showbutton = "", style = "") {
-  
-  
+
+
   //check if rects overlap if they do remove old ones
   for (i = 0; i < window.storage.length; i++) {
     if(doOverlap(window.storage[i].lx, window.storage[i].ly, window.storage[i].rx, window.storage[i].ry, lx, ly, rx, ry)){
@@ -28,10 +28,10 @@ function makeFrame(lx, ly, rx, ry, content = "", id = "", defaultpara = "", show
   console.log(content);
   if(content != "empty"){
   console.log("drinn");
-    
+
     //add new ellement to storage
     window.storage.push({lx:lx, ly:ly, rx:rx, ry: ry})
-    
+
     const container = document.getElementById("container");
     let cell = document.createElement("div");
     cell.classList.add("grid-item");
@@ -40,27 +40,27 @@ function makeFrame(lx, ly, rx, ry, content = "", id = "", defaultpara = "", show
     spancol= ""
     if(rx-lx+1 > 1){
       spancol = " / span " + (rx-lx+1);
-      
+
     }
-    
+
     spanrow= ""
     if(ry-ly+1 > 1){
       spanrow = " / span " + (ry-ly+1);
     }
-    
+
     jQuery.cssNumber.gridColumnStart = true;
     jQuery.cssNumber.gridColumnEnd = true;
     jQuery.cssNumber.gridRowStart = true;
     jQuery.cssNumber.gridRowEnd = true;
-    
+
     $(cell).css({"grid-column": (lx+1) + spancol,  "grid-row": ly+1 + spanrow});
-    
+
     container.appendChild(cell);
     //Create new element with width, heigth and content
     //$(".item" + lx + "-" + ly).css({"display": "block", "border-style": "solid", "border-color": "blue", "grid-column": (lx+1) + " / span " + (rx-lx+1),  "grid-row": ly+1 + " / span " + (ry-ly+1)});
-    
+
     if(content != null && content != ""){
-    
+
       var fullurl = content;
       //encode default parameter in URL
       if(defaultpara != "{}"){
@@ -71,46 +71,46 @@ function makeFrame(lx, ly, rx, ry, content = "", id = "", defaultpara = "", show
            }
         }
       }
-      
-      
-      
+
+
+
       fullurl = encodeURI(fullurl);
-      $(".item" + lx + "-" + ly).html("<iframe width=100% height=100% name='" + id +"' id='" + id +"' src='" + fullurl + "' title='' frameBorder='0' ></iframe>");
-              
+      $(".item" + lx + "-" + ly).html("<iframe name='" + id +"' id='" + id +"' src='" + fullurl + "' title='' frameBorder='0' ></iframe>");
+
       if(showbutton){
         $(".item" + lx + "-" + ly).append('<button class="formbutton" type="button" onclick="sendForm(\'' + '.item' + lx + '-' + ly +'\', \'' + encodeURIComponent(id) + '\', \'' + lx  + '\', \'' + ly  + '\')">' + showbutton + '</button>')
       }
-      
-      if(style){    
+
+      if(style){
         $(".item" + lx + "-" + ly).find("iframe").on('load', function(){
-          $(this).contents().find("head").append($("<link/>", 
+          $(this).contents().find("head").append($("<link/>",
             { rel: "stylesheet", href: style, type: "text/css" }
           ));
-        });      
+        });
       }
-      
-      
+
+
       //hideRectangel(lx, ly, rx, ry)
     }
     else{
       $(".item" + lx + "-" + ly).html("No language available.<br> Nicht in der Sprache verfügbar.");
     }
   }
-  
+
 }
 
 function sendForm(menuitem, cpeecallback,lx,ly){
   //Call iframe function that button has been pressed iframe should send json back
   //document.getElementById(decodeURIComponent(cpeecallback)).contentWindow.buttonPressed(cpeecallback);
-  
-  
+
+
   var formdata;
  if (typeof document.getElementById(decodeURIComponent(cpeecallback)).contentWindow.buttonPressed !== 'undefined' && $.isFunction(document.getElementById(decodeURIComponent(cpeecallback)).contentWindow.buttonPressed)) {
     var formdata = document.getElementById(decodeURIComponent(cpeecallback)).contentWindow.buttonPressed();
   }
 
 
-  
+
   $.ajax({
     type: "PUT",
     url: decodeURIComponent(cpeecallback),
@@ -119,13 +119,13 @@ function sendForm(menuitem, cpeecallback,lx,ly){
     success: function (data) {
     }
   });
-  
-  
-  
-  
+
+
+
+
   //Its a design question if removing the frame should be done within centurio, do have more controll, or automatic within code?
   //close frame
-  
+
   $(menuitem).remove();
   //remove frame from Server
   $.ajax({
@@ -133,14 +133,14 @@ function sendForm(menuitem, cpeecallback,lx,ly){
     url: "",
 		headers: {"content-id": "deleteframe"},
     data: {lx: lx, ly: ly},
-    success: function (data) {      
+    success: function (data) {
     }
   });
-  
+
 }
 
 function sendData(dataelement, datavalue){
-  
+
   $.ajax({
     type: "Get",
     url: 'cpeeinstance.url',
@@ -149,30 +149,30 @@ function sendData(dataelement, datavalue){
         type: "Put",
         url: ret + "/properties/dataelements/" + dataelement,
         data: {value: datavalue},
-        success: function (data) {     
+        success: function (data) {
           alert("Data Sent")
         }
       });
     }
   });
-  
+
 }
 
 function sendCallback(callbackUrl, jsonToSend){
-  
+
   $.ajax({
     type: "PUT",
     url: callbackUrl,
     contentType: "application/json",
     data: jsonToSend,
     success: function (data) {
-      
+
     }
   });
 }
 
 function showDocument() {
-  
+
   $.ajax({
     type: "GET",
     url: 'style.url',
@@ -180,7 +180,7 @@ function showDocument() {
       $('head link.custom').attr('href',ret);
     }
   });
-        
+
   $.ajax({
     type: "GET",
     url: 'info.json',
@@ -194,7 +194,7 @@ function showDocument() {
         success: function(ret2) {
           for (i of ret2.data) {
             makeFrame(i.lx,i.ly,i.rx,i.ry, i.url, i.callback, i.default, i.showbutton, i.style);
-          } 
+          }
         }
       });
     },
@@ -203,10 +203,10 @@ function showDocument() {
       clearDocument();
     }
   });
-  
-  
-  
-  
+
+
+
+
   /*
   $.ajax({
     type: "GET",
@@ -339,7 +339,7 @@ function init() {
   };
 }
 
- 
+
 
 function makeGrid(x, y) {
   const container = document.getElementById("container");
@@ -349,8 +349,8 @@ function makeGrid(x, y) {
   for (c = 0; c < (x * y); c++) {
     let cell = document.createElement("div");
     //cell.innerText = (c + 1);
-    cell.classList.add("item" + (c% y) + "-" + (Math.floor(c / y ))); 
-    
+    cell.classList.add("item" + (c% y) + "-" + (Math.floor(c / y )));
+
     cell.classList.add("grid-item");
 
     container.appendChild(cell);
