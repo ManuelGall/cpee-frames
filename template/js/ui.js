@@ -27,8 +27,6 @@ function makeFrame(lx, ly, rx, ry, content = "", id = "", defaultpara = "", show
   }
   console.log(content);
   if(content != "empty"){
-  console.log("drinn");
-
     //add new ellement to storage
     window.storage.push({lx:lx, ly:ly, rx:rx, ry: ry})
 
@@ -60,16 +58,16 @@ function makeFrame(lx, ly, rx, ry, content = "", id = "", defaultpara = "", show
     //$(".item" + lx + "-" + ly).css({"display": "block", "border-style": "solid", "border-color": "blue", "grid-column": (lx+1) + " / span " + (rx-lx+1),  "grid-row": ly+1 + " / span " + (ry-ly+1)});
 
     if(content != null && content != ""){
-
       var fullurl = content;
       //encode default parameter in URL
       if(defaultpara != "{}"){
         var fullurl = fullurl + "?";
         for (var key in defaultpara) {
           if (defaultpara.hasOwnProperty(key)) {
-            fullurl = fullurl + key + "=" +  defaultpara[key] + "&";
+            fullurl = fullurl + key + "=" +  encodeURIComponent(defaultpara[key]) + "&";
            }
         }
+        fullurl = fullurl.slice(0, -1);
       }
 
 

@@ -36,9 +36,12 @@ end
 class GetAllConfigs < Riddl::Implementation
   def response  
     Dir.chdir( __dir__  + '/data')
-    Riddl::Parameter::Complex.new('list','application/json',JSON::pretty_generate(Dir.glob('*/').sort_by{|x| x.downcase}))
+    databack = JSON::pretty_generate(Dir.glob('*/').sort_by{|x| x.downcase});
+    Dir.chdir( __dir__)
+    Riddl::Parameter::Complex.new('list','application/json',databack)
   end
 end
+
 
 class Get < Riddl::Implementation
   def response
@@ -94,8 +97,6 @@ end
 
 class NewFrameSet < Riddl::Implementation
   def response
-
-
     path = File.join('data',@r.last,'frames.json')
     file = File.read(path)
     data_hash = JSON::parse(file)
@@ -131,6 +132,7 @@ class NewFrameSet < Riddl::Implementation
       File.write(path, JSON.dump(data_hash))
       hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: "empty", showbutton: @p[5].value, style: @p[6].value, default: "{}", callback: @h['CPEE_CALLBACK']};
 
+
       @a[0].send(JSON.dump(hash))
     end
     
@@ -152,8 +154,8 @@ class NewFrameWait < Riddl::Implementation
     end
 
 
-
-
+    #check if url is set
+    if @p[7].value != ""
       urls = JSON::parse(@p[7].value);
       if @p[8].value == ""
         hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: urls, showbutton: @p[5].value, style: @p[6].value, default: "{}", callback: @h['CPEE_CALLBACK']};
@@ -167,10 +169,23 @@ class NewFrameWait < Riddl::Implementation
       infofile = File.join('data',@r.last,'info.json')
       infojson = JSON::parse(File.read(infofile))
       hash["url"] = urls.find{ |h| h['lang'] == infojson["lang"]}['url']
+      
+      File.write(File.join('data',@r.last,'callback'),@h['CPEE_CALLBACK'])
+
 
       @a[0].send(JSON.dump(hash))
-      nil
-    
+    else
+      File.write(path, JSON.dump(data_hash))
+      hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: "empty", showbutton: @p[5].value, style: @p[6].value, default: "{}", callback: @h['CPEE_CALLBACK']};
+      
+      File.write(File.join('data',@r.last,'callback'),@h['CPEE_CALLBACK'])
+
+
+      @a[0].send(JSON.dump(hash))
+      
+      Typhoeus.put(@h['CPEE_CALLBACK'], body: "No Frame Set")
+    end
+    nil    
     
   end
   def headers
@@ -206,22 +221,24 @@ end
 
 class Delete < Riddl::Implementation
   def response
+    pp "in delete"
     if cbu = File.read(File.join('data',@r.last,'callback'))
+      pp "XYZ"
       send = { 'operation' => @p[0].value }
       case send['operation']
         when 'result'
           send['target'] = JSON::parse(@p[1].value.read)
       end
       cbu += '/' unless cbu[-1] == '/'
-
+      pp "Sending"
       Typhoeus.put(cbu, body: JSON::generate(send), headers: { 'content-type' => 'application/json'})
     end
 
-    File.unlink(File.join('data',@r.last,'callback')) rescue nil
-    File.unlink(File.join('data',@r.last,'cpeeinstance.url')) rescue nil
-    File.unlink(File.join('data',@r.last,'style.url')) rescue nil
-    File.unlink(File.join('data',@r.last,'document.xml')) rescue nil
-    File.unlink(File.join('data',@r.last,'info.json')) rescue nil
+    #File.unlink(File.join('data',@r.last,'callback')) rescue nil
+    #File.unlink(File.join('data',@r.last,'cpeeinstance.url')) rescue nil
+    #File.unlink(File.join('data',@r.last,'style.url')) rescue nil
+    #File.unlink(File.join('data',@r.last,'document.xml')) rescue nil
+    #File.unlink(File.join('data',@r.last,'info.json')) rescue nil
 
     @a[0].send('reset')
     nil
@@ -499,6 +516,7 @@ server = Riddl::Server.new(File.join(__dir__,'/frames.xml'), :host => 'localhost
 
       run Delete, opts[:signals][idx] if delete 'opa'
       run Delete, opts[:signals][idx] if delete 'opb'
+      run Delete, opts[:signals][idx] if delete 'opc'
       on resource 'sse' do
         run SSE, opts[:signals][idx] if sse
       end

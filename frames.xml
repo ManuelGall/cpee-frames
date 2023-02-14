@@ -71,6 +71,9 @@
     <parameter name="op" fixed="result"/>
     <parameter name="value" mimetype="application/json"/>
   </message>
+  <message name="opc">
+    <parameter name="op" type="string"/>
+  </message>
   <message name="json">
     <parameter name="value" mimetype="application/json"/>
   </message>
@@ -106,6 +109,7 @@
 
       <delete in='opa'/>
       <delete in='opb'/>
+      <delete in='opc'/>
       <resource relative='sse'>
         <sse/>
       </resource>
