@@ -58,7 +58,7 @@ function makeFrame(lx, ly, rx, ry, content = "", id = "", defaultpara = "", show
     //$(".item" + lx + "-" + ly).css({"display": "block", "border-style": "solid", "border-color": "blue", "grid-column": (lx+1) + " / span " + (rx-lx+1),  "grid-row": ly+1 + " / span " + (ry-ly+1)});
 
     if(content != null && content != ""){
-      var fullurl = content;
+      var fullurl = encodeURI(content);
       //encode default parameter in URL
       if(defaultpara != "{}"){
         var fullurl = fullurl + "?";
@@ -70,9 +70,6 @@ function makeFrame(lx, ly, rx, ry, content = "", id = "", defaultpara = "", show
         fullurl = fullurl.slice(0, -1);
       }
 
-
-
-      fullurl = encodeURI(fullurl);
       $(".item" + lx + "-" + ly).html("<iframe name='" + id +"' id='" + id +"' src='" + fullurl + "' title='' frameBorder='0' ></iframe>");
 
       if(showbutton){
