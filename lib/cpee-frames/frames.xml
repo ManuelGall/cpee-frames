@@ -1,0 +1,141 @@
+<!--
+  This file is part of CPEE-FRAMES.
+
+  CPEE-FRAMES is free software: you can redistribute it and/or modify it under
+  the terms of the GNU General Public License as published by the Free Software
+  Foundation, either version 3 of the License, or (at your option) any later
+  version.
+
+  CPEE-FRAMES is distributed in the hope that it will be useful, but WITHOUT
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+  details.
+
+  You should have received a copy of the GNU General Public License along with
+  CPEE-FRAMES (file LICENSE in the main directory). If not, see
+  <http://www.gnu.org/licenses/>.
+-->
+
+<description xmlns="http://riddl.org/ns/description/1.0" xmlns:ann="http://riddl.org/ns/annotation/1.0" xmlns:xi="http://www.w3.org/2001/XInclude" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <message name="input">
+    <parameter name="style_url" type="string"/>
+    <parameter name="document_url" type="string"/>
+    <parameter name="x_amount" type="string"/>
+    <parameter name="y_amount" type="string"/>
+    <parameter name="lang" type="string"/>
+    <parameter name="document_name" type="string"/>
+  </message>
+  <message name="sframe">
+    <parameter name="type" fixed="set"/>
+    <parameter name="lx" type="string"/>
+    <parameter name="ly" type="nonNegativeInteger"/>
+    <parameter name="x_amount" type="nonNegativeInteger"/>
+    <parameter name="y_amount" type="nonNegativeInteger"/>
+    <parameter name="button" type="string"/>
+    <parameter name="style" type="string"/>
+    <parameter name="urls" type="string"/>
+    <parameter name="default" type="string"/>
+  </message>
+  <message name="wframe">
+    <parameter name="type" fixed="wait"/>
+    <parameter name="lx" type="nonNegativeInteger"/>
+    <parameter name="ly" type="nonNegativeInteger"/>
+    <parameter name="x_amount" type="nonNegativeInteger"/>
+    <parameter name="y_amount" type="nonNegativeInteger"/>
+    <parameter name="button" type="string"/>
+    <parameter name="style" type="string"/>
+    <parameter name="urls" type="string"/>
+    <parameter name="default" type="string"/>
+  </message>
+  <message name="deleteframe">
+    <parameter name="lx" type="string"/>
+    <parameter name="ly" type="string"/>
+  </message>
+  <message name="ui">
+    <parameter name="ui" mimetype="text/html"/>
+  </message>
+  <message name="callback">
+    <header name="CPEE-CALLBACK" type="boolean"/>
+  </message>
+  <message name="url">
+    <parameter name="url" mimetype="text/plain"/>
+  </message>
+  <message name="lang">
+    <parameter name="lang" type="string"/>
+  </message>
+  <message name="opa">
+    <parameter name="op" fixed="error"/>
+    <parameter name="reason" type="string"/>
+  </message>
+  <message name="opb">
+    <parameter name="op" fixed="result"/>
+    <parameter name="value" mimetype="application/json"/>
+  </message>
+  <message name="opc">
+    <parameter name="op" type="string"/>
+  </message>
+  <message name="json">
+    <parameter name="value" mimetype="application/json"/>
+  </message>
+  <message name="string">
+    <parameter name="value" type="string"/>
+  </message>
+
+  <resource>
+    <get out="ui"/>
+
+    <resource relative="getConfigs">
+      <get out="ui"/>
+    </resource>
+
+    <resource>
+      <get out="ui"/>
+      <!-- create new Frame -->
+      <post in='input'/>
+      <!-- Set Frame Data with callback -->
+      <put in='wframe' out="callback"/>
+      <!-- Set Frame Data without callback -->
+      <put in='sframe'/>
+
+      <post in='deleteframe'/>
+
+      <delete in='opa'/>
+      <delete in='opb'/>
+      <delete in='opc'/>
+      <resource relative='sse'>
+        <sse/>
+      </resource>
+      <resource relative="languages">
+        <get out="json"/>
+        <post in='lang'/>
+      </resource>
+      <resource relative="style.url">
+        <get out="url"/>
+      </resource>
+      <resource relative="cpeeinstance.url">
+        <get out="url"/>
+      </resource>
+      <resource relative="info.json">
+        <get out="json"/>
+      </resource>
+      <resource relative="frames.json">
+        <get out="json"/>
+      </resource>
+      <resource relative="dataelements.json">
+        <get out="json"/>
+        <post />
+      </resource>
+
+      <resource relative="test">
+        <put in="string"/>
+      </resource>
+
+      <resource relative='handler'>
+        <post />
+        <resource relative='sse'>
+          <sse/>
+        </resource>
+      </resource>
+    </resource>
+  </resource>
+</description>
