@@ -13,9 +13,9 @@ end
 task :default => [:gem]
 
 task :push => :gem do |r|
-  `gem push pkg/cpee-logging-xes-yaml.gem`
+  `gem push pkg/cpee-frames.gem`
 end
 
 task :install => :gem do |r|
-  `gem install pkg/cpee-logging-xes-yaml.gem`
+  `gem install pkg/cpee-frames.gem`
 end

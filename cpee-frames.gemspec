@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
 
   s.description      = "Flexibly arrange and display user interface components in a grid from executable process models. Very useful if you want to build dashboards."
 
-  s.files            = Dir['{server/**/*,tools/**/*,lib/**/*}'] + %w(LICENSE Rakefile cpee-frames.gemspec README.md AUTHORS)
+  s.files            = Dir['{server/*,ui/**/*,tools/**/*,lib/**/*}'] + %w(LICENSE Rakefile cpee-frames.gemspec README.md AUTHORS)
   s.require_path     = 'lib'
   s.extra_rdoc_files = ['README.md']
   s.bindir           = 'tools'
