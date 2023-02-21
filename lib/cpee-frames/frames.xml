@@ -1,18 +1,18 @@
 <!--
-  This file is part of centurio.work/wiz.
+  This file is part of CPEE-FRAMES.
 
-  centurio.work/wiz is free software: you can redistribute it and/or modify it
-  under the terms of the GNU General Public License as published by the Free
-  Software Foundation, either version 3 of the License, or (at your option) any
-  later version.
+  CPEE-FRAMES is free software: you can redistribute it and/or modify it under
+  the terms of the GNU General Public License as published by the Free Software
+  Foundation, either version 3 of the License, or (at your option) any later
+  version.
 
-  centurio.work/wiz is distributed in the hope that it will be useful, but
-  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-  more details.
+  CPEE-FRAMES is distributed in the hope that it will be useful, but WITHOUT
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+  details.
 
   You should have received a copy of the GNU General Public License along with
-  centurio.work/wiz (file LICENSE in the main directory). If not, see
+  CPEE-FRAMES (file LICENSE in the main directory). If not, see
   <http://www.gnu.org/licenses/>.
 -->
 
@@ -77,22 +77,19 @@
   <message name="json">
     <parameter name="value" mimetype="application/json"/>
   </message>
-
-  <message name="string"> <!--{{{-->
+  <message name="string">
     <parameter name="value" type="string"/>
-  </message> <!--}}}-->
+  </message>
 
   <resource>
     <get out="ui"/>
-    
+
     <resource relative="getConfigs">
       <get out="ui"/>
     </resource>
-      
-      
+
     <resource>
       <get out="ui"/>
-
       <!-- create new Frame -->
       <post in='input'/>
       <!-- Set Frame Data with callback -->
@@ -100,12 +97,7 @@
       <!-- Set Frame Data without callback -->
       <put in='sframe'/>
 
-
-
       <post in='deleteframe'/>
-
-
-
 
       <delete in='opa'/>
       <delete in='opb'/>
@@ -134,15 +126,12 @@
         <post />
       </resource>
 
-
       <resource relative="test">
         <put in="string"/>
       </resource>
 
-
       <resource relative='handler'>
         <post />
-
         <resource relative='sse'>
           <sse/>
         </resource>
