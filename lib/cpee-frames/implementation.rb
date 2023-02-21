@@ -69,21 +69,22 @@ module CPEE
 
     class InitFrame < Riddl::Implementation #{{{
       def response
-        Dir.mkdir(File.join('data',@r.last)) rescue nil
+        data_dir = @a[1]
+        Dir.mkdir(File.join(data_dir,@r.last)) rescue nil
 
         if !@p[0].value.to_s.empty?
-          File.write(File.join('data',@r.last,'style.url'),@p[0].value)
+          File.write(File.join(data_dir,@r.last,'style.url'),@p[0].value)
         end
 
-        File.write(File.join('data',@r.last,'frames.json'),JSON.dump(JSON.parse('{"data":[]}')))
+        File.write(File.join(data_dir,@r.last,'frames.json'),JSON.dump(JSON.parse('{"data":[]}')))
 
         #for handler
-        File.write(File.join('data',@r.last,'dataelements.json'),JSON.dump(JSON.parse('{"data":[]}')))
+        File.write(File.join(data_dir,@r.last,'dataelements.json'),JSON.dump(JSON.parse('{"data":[]}')))
 
-        File.write(File.join('data',@r.last,'info.json'),JSON.dump(JSON.parse('{"x_amount":' + @p[2].value + ', "y_amount":' + @p[3].value + ', "lang":"' + @p[4].value  + '", "langs":["' + @p[4].value +  '"], "document_name": "' + @p[5].value + '"}')))
+        File.write(File.join(data_dir,@r.last,'info.json'),JSON.dump(JSON.parse('{"x_amount":' + @p[2].value + ', "y_amount":' + @p[3].value + ', "lang":"' + @p[4].value  + '", "langs":["' + @p[4].value +  '"], "document_name": "' + @p[5].value + '"}')))
 
-        File.write(File.join('data',@r.last,'callback'),@h['CPEE_CALLBACK'])
-        File.write(File.join('data',@r.last,'cpeeinstance.url'),@h['CPEE_INSTANCE_URL'])
+        File.write(File.join(data_dir,@r.last,'callback'),@h['CPEE_CALLBACK'])
+        File.write(File.join(data_dir,@r.last,'cpeeinstance.url'),@h['CPEE_INSTANCE_URL'])
 
         @a[0].send('new')
         nil
@@ -92,7 +93,8 @@ module CPEE
 
     class NewFrameSet < Riddl::Implementation
       def response
-        path = File.join('data',@r.last,'frames.json')
+        data_dir = @a[1]
+        path = File.join(data_dir,@r.last,'frames.json')
         file = File.read(path)
         data_hash = JSON::parse(file)
 
@@ -117,7 +119,7 @@ module CPEE
           File.write(path, JSON.dump(data_hash))
 
           #only send active url to client
-          infofile = File.join('data',@r.last,'info.json')
+          infofile = File.join(data_dir,@r.last,'info.json')
           infojson = JSON::parse(File.read(infofile))
           hash["url"] = urls.find{ |h| h['lang'] == infojson["lang"]}['url']
 
@@ -137,7 +139,8 @@ module CPEE
 
     class NewFrameWait < Riddl::Implementation
       def response
-        path = File.join('data',@r.last,'frames.json')
+        data_dir = @a[1]
+        path = File.join(data_dir,@r.last,'frames.json')
         file = File.read(path)
         data_hash = JSON::parse(file)
 
@@ -161,11 +164,11 @@ module CPEE
           File.write(path, JSON.dump(data_hash))
 
           #only send active url to client
-          infofile = File.join('data',@r.last,'info.json')
+          infofile = File.join(data_dir,@r.last,'info.json')
           infojson = JSON::parse(File.read(infofile))
           hash["url"] = urls.find{ |h| h['lang'] == infojson["lang"]}['url']
 
-          File.write(File.join('data',@r.last,'callback'),@h['CPEE_CALLBACK'])
+          File.write(File.join(data_dir,@r.last,'callback'),@h['CPEE_CALLBACK'])
 
 
           @a[0].send(JSON.dump(hash))
@@ -173,7 +176,7 @@ module CPEE
           File.write(path, JSON.dump(data_hash))
           hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: "empty", showbutton: @p[5].value, style: @p[6].value, default: "{}", callback: @h['CPEE_CALLBACK']};
 
-          File.write(File.join('data',@r.last,'callback'),@h['CPEE_CALLBACK'])
+          File.write(File.join(data_dir,@r.last,'callback'),@h['CPEE_CALLBACK'])
 
 
           @a[0].send(JSON.dump(hash))
@@ -190,7 +193,8 @@ module CPEE
 
     class DeleteFrame < Riddl::Implementation
       def response
-        path = File.join('data',@r.last,'frames.json')
+        data_dir = @a[1]
+        path = File.join(data_dir,@r.last,'frames.json')
         file = File.read(path)
         data_hash = JSON::parse(file)
 
@@ -216,8 +220,9 @@ module CPEE
 
     class Delete < Riddl::Implementation
       def response
+        data_dir = @a[1]
         pp "in delete"
-        if cbu = File.read(File.join('data',@r.last,'callback'))
+        if cbu = File.read(File.join(data_dir,@r.last,'callback'))
           pp "XYZ"
           send = { 'operation' => @p[0].value }
           case send['operation']
@@ -229,11 +234,11 @@ module CPEE
           Typhoeus.put(cbu, body: JSON::generate(send), headers: { 'content-type' => 'application/json'})
         end
 
-        #File.unlink(File.join('data',@r.last,'callback')) rescue nil
-        #File.unlink(File.join('data',@r.last,'cpeeinstance.url')) rescue nil
-        #File.unlink(File.join('data',@r.last,'style.url')) rescue nil
-        #File.unlink(File.join('data',@r.last,'document.xml')) rescue nil
-        #File.unlink(File.join('data',@r.last,'info.json')) rescue nil
+        #File.unlink(File.join(data_dir,@r.last,'callback')) rescue nil
+        #File.unlink(File.join(data_dir,@r.last,'cpeeinstance.url')) rescue nil
+        #File.unlink(File.join(data_dir,@r.last,'style.url')) rescue nil
+        #File.unlink(File.join(data_dir,@r.last,'document.xml')) rescue nil
+        #File.unlink(File.join(data_dir,@r.last,'info.json')) rescue nil
 
         @a[0].send('reset')
         nil
@@ -242,10 +247,11 @@ module CPEE
 
     class GetFrames < Riddl::Implementation #{{{
       def response
-        fname = File.join('data',@r[-2],'frames.json')
+        data_dir = @a[0]
+        fname = File.join(data_dir,@r[-2],'frames.json')
         if File.exists? fname
 
-          infofile = File.join('data',@r[-2],'info.json')
+          infofile = File.join(data_dir,@r[-2],'info.json')
           infojson = JSON::parse(File.read(infofile))
 
           #remove not used languages
@@ -264,8 +270,9 @@ module CPEE
 
     class SetDataElements < Riddl::Implementation #{{{
       def response
+        data_dir = @a[0]
         savejson = @p.map { |o| Hash[o.name, o.value] }.to_json
-        path = File.join('data',@r[0],'dataelements.json')
+        path = File.join(data_dir,@r[0],'dataelements.json')
         File.write(path, savejson)
 
         #puts xyz
@@ -278,7 +285,7 @@ module CPEE
         #puts @p[0].name
         #puts @p[0].value
 
-        #fname = File.join('data',@r[-2],'dataelements.json')
+        #fname = File.join(data_dir,@r[-2],'dataelements.json')
         #if File.exists? fname
         #  Riddl::Parameter::Complex.new('value','application/json',File.read(fname))
         #else
@@ -289,7 +296,8 @@ module CPEE
 
     class GetDataElements < Riddl::Implementation #{{{
       def response
-        fname = File.join('data',@r[-2],'dataelements.json')
+        data_dir = @a[0]
+        fname = File.join(data_dir,@r[-2],'dataelements.json')
         if File.exists? fname
           Riddl::Parameter::Complex.new('value','application/json',File.read(fname))
         else
@@ -300,7 +308,8 @@ module CPEE
 
     class GetInfo < Riddl::Implementation #{{{
       def response
-        fname = File.join('data',@r[-2],'info.json')
+        data_dir = @a[0]
+        fname = File.join(data_dir,@r[-2],'info.json')
         if File.exists? fname
           Riddl::Parameter::Complex.new('value','application/json',File.read(fname))
         else
@@ -311,7 +320,8 @@ module CPEE
 
     class GetLangs < Riddl::Implementation #{{{
       def response
-        fname = File.join('data',@r[-2],'info.json')
+        data_dir = @a[0]
+        fname = File.join(data_dir,@r[-2],'info.json')
         if File.exists? fname
           infojson = JSON::parse(File.read(fname))
           Riddl::Parameter::Complex.new('value','application/json',infojson["langs"])
@@ -323,7 +333,8 @@ module CPEE
 
     class SetLang < Riddl::Implementation #{{{
       def response
-        fname = File.join('data',@r[-2],'info.json')
+        data_dir = @a[1]
+        fname = File.join(data_dir,@r[-2],'info.json')
         if File.exists? fname
           infojson = JSON::parse(File.read(fname))
           infojson["lang"] = @p[0].value
@@ -348,7 +359,8 @@ module CPEE
 
     class GetStyle < Riddl::Implementation #{{{
       def response
-        fname = File.join('data',@r[-2],'style.url')
+        data_dir = @a[0]
+        fname = File.join(data_dir,@r[-2],'style.url')
         if File.exists? fname
           Riddl::Parameter::Complex.new('url','text/plain',File.read(fname).strip)
         else
@@ -359,7 +371,8 @@ module CPEE
 
     class GetCpeeInstance < Riddl::Implementation #{{{
       def response
-        fname = File.join('data',@r[-2],'cpeeinstance.url')
+        data_dir = @a[0]
+        fname = File.join(data_dir,@r[-2],'cpeeinstance.url')
         if File.exists? fname
           Riddl::Parameter::Complex.new('url','text/plain',File.read(fname).strip)
         else
@@ -376,6 +389,7 @@ module CPEE
 
     class Handler < Riddl::Implementation
       def response
+        data_dir      = @a[1]
         topic         = @p[1].value
         event_name    = @p[2].value
         notification  = JSON.parse(@p[3].value.read)
@@ -394,7 +408,7 @@ module CPEE
         if content['values']&.any?
           #puts alldata['ausfuehrungen']
           puts "writing file"
-          path = File.join('data',@r[0],'dataelements.json')
+          path = File.join(data_dir,@r[0],'dataelements.json')
           File.write(path, JSON.dump(content['values']))
         end
 
@@ -486,49 +500,49 @@ module CPEE
             opts[:signals2]["handler"] ||= Signaling.new
 
             run Get, "test" if get
-            run InitFrame, opts[:signals][idx] if post 'input'
+            run InitFrame, opts[:signals][idx], opts[:data_dir] if post 'input'
 
-            run NewFrameSet, opts[:signals][idx] if put 'sframe'
-            run NewFrameWait, opts[:signals][idx] if put 'wframe'
+            run NewFrameSet, opts[:signals][idx], opts[:data_dir] if put 'sframe'
+            run NewFrameWait, opts[:signals][idx], opts[:data_dir] if put 'wframe'
 
-            run DeleteFrame, opts[:signals][idx] if post 'deleteframe'
+            run DeleteFrame, opts[:signals][idx], opts[:data_dir] if post 'deleteframe'
 
             on resource 'handler' do
-              run Handler, opts[:signals2]["handler"] if post
+              run Handler, opts[:signals2]["handler"], opts[:data_dir] if post
               on resource 'sse' do
                 run SSE2, opts[:signals2]["handler"] if sse
               end
             end
 
-            run Delete, opts[:signals][idx] if delete 'opa'
-            run Delete, opts[:signals][idx] if delete 'opb'
-            run Delete, opts[:signals][idx] if delete 'opc'
+            run Delete, opts[:signals][idx], opts[:data_dir] if delete 'opa'
+            run Delete, opts[:signals][idx], opts[:data_dir] if delete 'opb'
+            run Delete, opts[:signals][idx], opts[:data_dir] if delete 'opc'
             on resource 'sse' do
               run SSE, opts[:signals][idx] if sse
             end
             on resource 'languages' do
-              run GetLangs if get
-              run SetLang, opts[:signals][idx] if post 'lang'
+              run GetLangs, opts[:data_dir] if get
+              run SetLang, opts[:signals][idx], opts[:data_dir] if post 'lang'
             end
             on resource 'style.url' do
-              run GetStyle if get
+              run GetStyle, opts[:data_dir] if get
             end
             on resource 'cpeeinstance.url' do
-              run GetCpeeInstance if get
+              run GetCpeeInstance, opts[:data_dir] if get
             end
             on resource 'info.json' do
-              run GetInfo if get
+              run GetInfo, opts[:data_dir] if get
             end
             on resource 'frames.json' do
-              run GetFrames if get
+              run GetFrames, opts[:data_dir] if get
             end
             on resource 'test' do
               run OutputTest if put
             end
 
             on resource 'dataelements.json' do
-              run SetDataElements if post
-              run GetDataElements if get
+              run SetDataElements, opts[:data_dir] if post
+              run GetDataElements, opts[:data_dir] if get
             end
           end
         end
