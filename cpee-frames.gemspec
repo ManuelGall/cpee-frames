@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = '>=3.0'
 
-  s.authors          = ['Manuell Gall', 'Juergen Mangler']
+  s.authors          = ['Manuell Gall', "Juergen 'eTM' Mangler"]
 
   s.email            = 'gall.manuel.89@gmail.com'
   s.homepage         = 'https://github.com/ManuelGall/cpee-frames'
