@@ -29,6 +29,17 @@ module CPEE
 
     SERVER = File.expand_path(File.join(__dir__,'frames.xml'))
 
+    def self::overlap?(l1x, l1y, r1x, r1y, l2x, l2y, r2x, r2y)
+      if l1x > r2x || l2x > r1x
+          return false
+      end
+      if l1y > r2y || l2y > r1y
+          return false
+      end
+      return true
+    end
+
+
     # https://coderwall.com/p/atyfyq/ruby-string-to-boolean
     # showbutton
     refine String do #{{{
@@ -100,7 +111,7 @@ module CPEE
 
         #check if new frame overlaps others if it does, delete overlapped frames
         data_hash["data"].each do | c |
-          if doOverlap(c['lx'], c['ly'], c['rx'], c['ry'], @p[1].value.to_i, @p[2].value.to_i, (@p[1].value.to_i + @p[3].value.to_i - 1), (@p[2].value.to_i + @p[4].value.to_i - 1))
+          if CPEE::Frames::overlap?(c['lx'], c['ly'], c['rx'], c['ry'], @p[1].value.to_i, @p[2].value.to_i, (@p[1].value.to_i + @p[3].value.to_i - 1), (@p[2].value.to_i + @p[4].value.to_i - 1))
             data_hash["data"].delete(c)
           end
         end
@@ -146,7 +157,7 @@ module CPEE
 
         #check if new frame overlaps others if it does, delete overlapped frames
         data_hash["data"].each do | c |
-          if doOverlap(c['lx'], c['ly'], c['rx'], c['ry'], @p[1].value.to_i, @p[2].value.to_i, (@p[1].value.to_i + @p[3].value.to_i - 1), (@p[2].value.to_i + @p[4].value.to_i - 1))
+          if CPEE::Frames::overlap?(c['lx'], c['ly'], c['rx'], c['ry'], @p[1].value.to_i, @p[2].value.to_i, (@p[1].value.to_i + @p[3].value.to_i - 1), (@p[2].value.to_i + @p[4].value.to_i - 1))
             data_hash["data"].delete(c)
           end
         end
@@ -199,23 +210,13 @@ module CPEE
         data_hash = JSON::parse(file)
 
         data_hash["data"].each do | c |
-          if doOverlap(c['lx'], c['ly'], c['rx'], c['ry'], @p[0].value.to_i, @p[1].value.to_i, (@p[0].value.to_i + 1), (@p[1].value.to_i + 1))
+          if CPEE::Frames::overlap?(c['lx'], c['ly'], c['rx'], c['ry'], @p[0].value.to_i, @p[1].value.to_i, (@p[0].value.to_i + 1), (@p[1].value.to_i + 1))
             data_hash["data"].delete(c)
           end
         end
 
         File.write(path, JSON.dump(data_hash))
       end
-    end
-
-    def doOverlap(l1x, l1y, r1x, r1y, l2x, l2y, r2x, r2y)
-      if l1x > r2x || l2x > r1x
-          return false;
-      end
-      if l1y > r2y || l2y > r1y
-          return false;
-      end
-      return true;
     end
 
     class Delete < Riddl::Implementation
