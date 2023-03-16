@@ -250,7 +250,7 @@ module CPEE
       def response
         data_dir = @a[0]
         fname = File.join(data_dir,@r[-2],'frames.json')
-        if File.exists? fname
+        if File.exist? fname
 
           infofile = File.join(data_dir,@r[-2],'info.json')
           infojson = JSON::parse(File.read(infofile))
@@ -287,7 +287,7 @@ module CPEE
         #puts @p[0].value
 
         #fname = File.join(data_dir,@r[-2],'dataelements.json')
-        #if File.exists? fname
+        #if File.exist? fname
         #  Riddl::Parameter::Complex.new('value','application/json',File.read(fname))
         #else
         #  @status = 404
@@ -299,7 +299,7 @@ module CPEE
       def response
         data_dir = @a[0]
         fname = File.join(data_dir,@r[-2],'dataelements.json')
-        if File.exists? fname
+        if File.exist? fname
           Riddl::Parameter::Complex.new('value','application/json',File.read(fname))
         else
           @status = 404
@@ -311,7 +311,7 @@ module CPEE
       def response
         data_dir = @a[0]
         fname = File.join(data_dir,@r[-2],'info.json')
-        if File.exists? fname
+        if File.exist? fname
           Riddl::Parameter::Complex.new('value','application/json',File.read(fname))
         else
           @status = 404
@@ -323,7 +323,7 @@ module CPEE
       def response
         data_dir = @a[0]
         fname = File.join(data_dir,@r[-2],'info.json')
-        if File.exists? fname
+        if File.exist? fname
           infojson = JSON::parse(File.read(fname))
           Riddl::Parameter::Complex.new('value','application/json',infojson["langs"])
         else
@@ -336,7 +336,7 @@ module CPEE
       def response
         data_dir = @a[1]
         fname = File.join(data_dir,@r[-2],'info.json')
-        if File.exists? fname
+        if File.exist? fname
           infojson = JSON::parse(File.read(fname))
           infojson["lang"] = @p[0].value
 
@@ -362,7 +362,7 @@ module CPEE
       def response
         data_dir = @a[0]
         fname = File.join(data_dir,@r[-2],'style.url')
-        if File.exists? fname
+        if File.exist? fname
           Riddl::Parameter::Complex.new('url','text/plain',File.read(fname).strip)
         else
           @status = 404
@@ -374,7 +374,7 @@ module CPEE
       def response
         data_dir = @a[0]
         fname = File.join(data_dir,@r[-2],'cpeeinstance.url')
-        if File.exists? fname
+        if File.exist? fname
           Riddl::Parameter::Complex.new('url','text/plain',File.read(fname).strip)
         else
           @status = 404

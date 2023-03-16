@@ -66,14 +66,14 @@ else
 end
 
 if command == 'new'
-  if !File.exists?(dir)
+  if !File.exist?(dir)
     FileUtils.cp_r(File.join(curpath,'..','server'),dir)
     FileUtils.mkdir(File.join(dir,'data')) rescue nil
   else
     puts 'Directory already exists.'
   end
 elsif command == 'newui'
-  if !File.exists?(dir)
+  if !File.exist?(dir)
     FileUtils.cp_r(File.join(curpath,'..','ui'),dir)
   else
     puts 'Directory already exists.'

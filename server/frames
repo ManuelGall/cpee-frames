@@ -16,7 +16,7 @@
 # CPEE-FRAMES (file LICENSE in the main directory). If not, see
 # <http://www.gnu.org/licenses/>.
 
-if File.exists?(File.join(__dir__,'..','lib','cpee-frames','implementation.rb'))
+if File.exist?(File.join(__dir__,'..','lib','cpee-frames','implementation.rb'))
   require_relative File.join(__dir__,'..','lib','cpee-frames','implementation')
 else
   require 'cpee-frames/implementation'
