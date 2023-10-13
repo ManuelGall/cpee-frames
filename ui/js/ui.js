@@ -1,21 +1,17 @@
 var reason ="";
 var storage = []; //{col:1, row:1, colamount:1, rowamount: 1}];
 
-
 function doOverlap(l1x, l1y, r1x, r1y, l2x, l2y, r2x, r2y) {
-    // If one rectangle is on left side of other
-    if (l1x > r2x || l2x > r1x)
-        return false;
-    // If one rectangle is above other
-    if (l1y > r2y || l2y > r1y)
-        return false;
-    return true;
+  // If one rectangle is on left side of other
+  if (l1x > r2x || l2x > r1x)
+      return false;
+  // If one rectangle is above other
+  if (l1y > r2y || l2y > r1y)
+      return false;
+  return true;
 }
 
-
 function makeFrame(lx, ly, rx, ry, content = "", id = "", defaultpara = "", showbutton = "", style = "") {
-
-
   //check if rects overlap if they do remove old ones
   for (i = 0; i < window.storage.length; i++) {
     if(doOverlap(window.storage[i].lx, window.storage[i].ly, window.storage[i].rx, window.storage[i].ry, lx, ly, rx, ry)){
@@ -84,27 +80,22 @@ function makeFrame(lx, ly, rx, ry, content = "", id = "", defaultpara = "", show
         });
       }
 
-
       //hideRectangel(lx, ly, rx, ry)
     }
     else{
       $(".item" + lx + "-" + ly).html("No language available.<br> Nicht in der Sprache verfügbar.");
     }
   }
-
 }
 
 function sendForm(menuitem, cpeecallback,lx,ly){
   //Call iframe function that button has been pressed iframe should send json back
   //document.getElementById(decodeURIComponent(cpeecallback)).contentWindow.buttonPressed(cpeecallback);
 
-
   var formdata;
- if (typeof document.getElementById(decodeURIComponent(cpeecallback)).contentWindow.buttonPressed !== 'undefined' && $.isFunction(document.getElementById(decodeURIComponent(cpeecallback)).contentWindow.buttonPressed)) {
+  if (typeof document.getElementById(decodeURIComponent(cpeecallback)).contentWindow.buttonPressed !== 'undefined' && $.isFunction(document.getElementById(decodeURIComponent(cpeecallback)).contentWindow.buttonPressed)) {
     var formdata = document.getElementById(decodeURIComponent(cpeecallback)).contentWindow.buttonPressed();
   }
-
-
 
   $.ajax({
     type: "PUT",
@@ -114,9 +105,6 @@ function sendForm(menuitem, cpeecallback,lx,ly){
     success: function (data) {
     }
   });
-
-
-
 
   //Its a design question if removing the frame should be done within centurio, do have more controll, or automatic within code?
   //close frame
@@ -131,7 +119,6 @@ function sendForm(menuitem, cpeecallback,lx,ly){
     success: function (data) {
     }
   });
-
 }
 
 function sendData(dataelement, datavalue){
@@ -154,7 +141,6 @@ function sendData(dataelement, datavalue){
 }
 
 function sendCallback(callbackUrl, jsonToSend){
-
   $.ajax({
     type: "PUT",
     url: callbackUrl,
@@ -167,7 +153,6 @@ function sendCallback(callbackUrl, jsonToSend){
 }
 
 function showDocument() {
-
   $.ajax({
     type: "GET",
     url: 'style.url',
@@ -198,93 +183,10 @@ function showDocument() {
       clearDocument();
     }
   });
-
-
-
-
-  /*
-  $.ajax({
-    type: "GET",
-    url: 'languages',
-    success: function(ret) {
-      $('#content .added').remove();
-      $('#control .added').remove();
-      var ctemplate = $('#content template')[0];
-      var btemplate = $('#control template')[0];
-      var promises = [];
-      $('language',ret).each(function(i,e){
-        var cclone = document.importNode(ctemplate.content, true);
-        var bclone = document.importNode(btemplate.content, true);
-        promises.push(new Promise((resolve, reject) => {
-          $('> *',cclone).each(function(j,c){
-            $(c).addClass('added');
-            $(c).attr('lang', e.textContent);
-            $.ajax({
-              type: "GET",
-              url: 'documents/' + e.textContent,
-              success: function(doc) {
-                if (c.nodeName == 'IFRAME') {
-                  $(c).attr('src',doc);
-                } else {
-                  $('iframe',c).attr('src',doc);
-                }
-                $('#content').append(c);
-                resolve(true);
-              },
-              error: function() {
-                reject(false);
-                setTimeout(function(){ showDocument(); }, 500);
-              }
-            });
-          });
-        }));
-        promises.push(new Promise((resolve, reject) => {
-          $('> *',bclone).each(function(j,c){
-            $(c).addClass('added');
-            $(c).attr('lang', e.textContent);
-            $.ajax({
-              type: "GET",
-              url: 'buttons/' + e.textContent,
-              success: function(but) {
-                if (c.nodeName == 'BUTTON') {
-                  $(c).text(but);
-                } else {
-                  $('button',c).text(but);
-                }
-                $('#control').append(c);
-                resolve(true);
-              },
-              error: function() {
-                resolve(true);
-              }
-            });
-          });
-        }));
-      });
-      Promise.all(promises).then((values) => {
-        $.ajax({
-          type: "GET",
-          url: 'style.url',
-          success: function(ret) {
-            $('head link.custom').attr('href',ret);
-          }
-        });
-        lang_init('#content','#languages');
-        $('#languages').removeClass('hidden');
-        $('#nope').addClass('hidden');
-      });
-    },
-    error: function() {
-      reason = '';
-      clearDocument();
-    }
-  });
-  */
 }
 
 
 function clearDocument() {
-  console.log('rrrr');
   $('#languages').addClass('hidden');
   $('#nope').removeClass('hidden');
   $('#control .added').remove();
@@ -295,7 +197,6 @@ function clearDocument() {
 function reloadAllFrames() {
   location.reload();
 }
-
 
 function init() {
   es = new EventSource('sse/');
@@ -330,6 +231,7 @@ function init() {
   es.onerror = function() {
     reason = 'Server down.';
     clearDocument();
+    es.close();
     setTimeout(init, 10000);
   };
 }

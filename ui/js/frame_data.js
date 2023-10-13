@@ -7,7 +7,7 @@ function showDocument(fr = "") {
       type: "GET",
       url: 'https://centurio.work/out/frames/' + fr + '/dataelements.json',
       success: function(ret) {
-       
+
         $("#alldata").text(JSON.stringify(ret["ausfuehrungen"]));
       },
       error: function() {
@@ -20,7 +20,6 @@ function showDocument(fr = "") {
 
 
 function clearDocument() {
-  console.log('rrrr');
 }
 
 
@@ -47,7 +46,7 @@ function init() {
         catch (e) {
         }
       }
-        
+
     }
   };
   es.onerror = function() {
