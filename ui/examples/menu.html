@@ -1,18 +1,18 @@
 <!--
-  This file is part of centurio.work/out/frame.
+  This file is part of CPEE-FRAMES.
 
-  centurio.work/out/frame is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by the Free
-  Software Foundation, either version 3 of the License, or (at your option) any
-  later version.
+  CPEE-FRAMES is free software: you can redistribute it and/or modify it under
+  the terms of the GNU General Public License as published by the Free Software
+  Foundation, either version 3 of the License, or (at your option) any later
+  version.
 
-  centurio.work/out/frame is distributed in the hope that it will be useful, but
-  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-  more details.
+  CPEE-FRAMES is distributed in the hope that it will be useful, but WITHOUT
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+  details.
 
   You should have received a copy of the GNU General Public License along with
-  centurio.work/out/frame (file LICENSE in the main directory). If not, see
+  CPEE-FRAMES (file LICENSE in the main directory). If not, see
   <http://www.gnu.org/licenses/>.
 -->
 
@@ -20,7 +20,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="de" xml:lang="de">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>test frame</title>
+    <title>menu frame</title>
 
     <!-- libs, do not modify. When local than load local libs. -->
     <script type="text/javascript" src="/js_libs/jquery.min.js"></script>
@@ -44,9 +44,23 @@
       if (location.href.match(/\/$/) == null) {
         location.href = location.href + '/';
       }
+
+      function openlink(menuitem){
+        var menu = { name: menuitem };
+
+        $.ajax({
+          type: "PUT",
+          url: window.name,
+          contentType: "application/json",
+          data: JSON.stringify(menu),
+          success: function (data) { }
+        });
+        //alert(xyz);
+      }
     </script>
   </head>
   <body is="x-ui">
-    <div id="container">test</div>
+    <a href="javascript:openlink('Centurio');">Centurio</a>
+    <a href="javascript:openlink('WAS');">WAS</a>
   </body>
 </html>

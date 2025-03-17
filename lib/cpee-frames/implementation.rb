@@ -2,15 +2,15 @@
 #
 # This file is part of CPEE-FRAMES.
 #
-# CPEE-FRAMES is free software: you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or (at your
-# option) any later version.
+# CPEE-FRAMES is free software: you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
 #
-# CPEE-FRAMES is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
-# Public License for more details.
+# CPEE-FRAMES is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
 #
 # You should have received a copy of the GNU General Public License along with
 # CPEE-FRAMES (file LICENSE in the main directory). If not, see
@@ -66,15 +66,7 @@ module CPEE
 
     class Get < Riddl::Implementation #{{{
       def response
-        if @r[0] == 'test'
-          Riddl::Parameter::Complex.new('ui','text/html',File.open(File.join(__dir__,'ui','test.html')))
-        elsif @r[0] == 'menu'
-          Riddl::Parameter::Complex.new('ui','text/html',File.open(File.join(__dir__,'ui','menu.html')))
-        elsif @r[0] == 'framedata'
-          Riddl::Parameter::Complex.new('ui','text/html',File.open(File.join(__dir__,'ui','framedata.html')))
-        else
-          Riddl::Parameter::Complex.new('ui','text/html',File.open(File.join(__dir__,'ui','template.html')))
-        end
+        Riddl::Parameter::Complex.new('ui','text/html',File.open(File.join(__dir__,'ui','template.html')))
       end
     end #}}}
 
