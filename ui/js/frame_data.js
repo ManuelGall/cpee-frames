@@ -1,7 +1,4 @@
-
-
 function showDocument(fr = "") {
-
   if(fr != ""){
     $.ajax({
       type: "GET",
@@ -18,10 +15,7 @@ function showDocument(fr = "") {
   }
 }
 
-
-function clearDocument() {
-}
-
+function clearDocument() { }
 
 function init() {
   es = new EventSource('handler/sse/');
@@ -55,11 +49,6 @@ function init() {
     setTimeout(init, 10000);
   };
 }
-
-
-
-
-
 
 $(document).ready(function() {
   init();

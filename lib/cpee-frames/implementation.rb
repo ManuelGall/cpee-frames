@@ -388,7 +388,7 @@ module CPEE
       end
     end #}}}
 
-    class Handler < Riddl::Implementation
+    class Handler < Riddl::Implementation #{{{
       def response
         data_dir      = @a[1]
         topic         = @p[1].value
@@ -401,11 +401,6 @@ module CPEE
         parameters = content['parameters']
         receiving = content['received']
 
-        #puts instancenr
-        #puts activity
-        puts content['values']
-
-
         if content['values']&.any?
           #puts alldata['ausfuehrungen']
           puts "writing file"
@@ -416,7 +411,7 @@ module CPEE
         @a[0].send(@r[0])
         nil
       end
-    end
+    end #}}}
 
     class SSE < Riddl::SSEImplementation #{{{
       def onopen
@@ -500,7 +495,7 @@ module CPEE
             opts[:signals][idx] ||= Signaling.new
             opts[:signals2]["handler"] ||= Signaling.new
 
-            run Get, "test" if get
+            run Get if get
             run InitFrame, opts[:signals][idx], opts[:data_dir] if post 'input'
 
             run NewFrameSet, opts[:signals][idx], opts[:data_dir] if put 'sframe'

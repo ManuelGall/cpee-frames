@@ -122,7 +122,6 @@ function sendForm(menuitem, cpeecallback,lx,ly){
 }
 
 function sendData(dataelement, datavalue){
-
   $.ajax({
     type: "Get",
     url: 'cpeeinstance.url',
@@ -137,7 +136,6 @@ function sendData(dataelement, datavalue){
       });
     }
   });
-
 }
 
 function sendCallback(callbackUrl, jsonToSend){
@@ -184,7 +182,6 @@ function showDocument() {
     }
   });
 }
-
 
 function clearDocument() {
   $('#languages').addClass('hidden');
@@ -236,8 +233,6 @@ function init() {
   };
 }
 
-
-
 function makeGrid(x, y) {
   const container = document.getElementById("container");
   container.style.setProperty('--grid-rows', y);
@@ -255,7 +250,6 @@ function makeGrid(x, y) {
   */
 };
 
-
 //https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/Function/caller
 function sendJson(callback, jsonToSend){
   $.ajax({
@@ -268,7 +262,6 @@ function sendJson(callback, jsonToSend){
     }
   });
 }
-
 
 $(document).ready(function() {
   init();
