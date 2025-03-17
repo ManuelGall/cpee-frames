@@ -34,7 +34,6 @@ function makeFrame(lx, ly, rx, ry, content = "", id = "", defaultpara = "", show
     spancol= ""
     if(rx-lx+1 > 1){
       spancol = " / span " + (rx-lx+1);
-
     }
 
     spanrow= ""

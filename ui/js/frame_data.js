@@ -2,9 +2,8 @@ function showDocument(fr = "") {
   if(fr != ""){
     $.ajax({
       type: "GET",
-      url: 'https://centurio.work/out/frames/' + fr + '/dataelements.json',
+      url: '/out/frames/' + fr + '/dataelements.json',
       success: function(ret) {
-
         $("#alldata").text(JSON.stringify(ret["ausfuehrungen"]));
       },
       error: function() {
