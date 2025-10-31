@@ -21,7 +21,6 @@ function makeFrame(lx, ly, rx, ry, content = "", id = "", defaultpara = "", show
       --i;
     }
   }
-  console.log(content);
   if(content != "empty"){
     //add new ellement to storage
     window.storage.push({lx:lx, ly:ly, rx:rx, ry: ry})
