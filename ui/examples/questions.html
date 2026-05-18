@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>Questions</title>
+    <script type="text/javascript" src="/js_libs/jquery.min.js"></script>
+    <script type="text/javascript" src="/js_libs/marked.min.js"></script>
+    <script type="text/javascript" src="../js/frames.js"></script>
+
+    <link rel="stylesheet" href="questions.css" type="text/css"/>
+
+    <style>
+      .scale a.button:first-child {
+        border-top-left-radius: 0.2em;
+        border-bottom-left-radius: 0.2em;
+        border-left: solid 1px var(--x-custom-content-border-left-color);
+      }
+      .scale a.button:last-child {
+        border-top-right-radius: 0.2em;
+        border-bottom-right-radius: 0.2em;
+      }
+      .scale a.button.down:first-child {
+        border-left: solid 1px var(--x-custom-content-border-right-color);
+      }
+      .scale a.button {
+        cursor: pointer;
+        display: inline-block;
+        text-align: center;
+        width: 2em;
+        user-select: none;
+        background: -moz-linear-gradient(top, var(--x-custom-background-color), var(--x-custom-content-light-background));
+        background: -webkit-linear-gradient(top, var(--x-custom-background-color), var(--x-custom-content-light-background));
+        border-top: solid 1px var(--x-custom-content-border-left-color);
+        border-bottom: solid 1px var(--x-custom-content-border-right-color);
+        border-right: solid 1px var(--x-custom-content-border-right-color);
+        padding: 0.1em 0.4em;
+      }
+      .scale a.button.down {
+        background: -moz-linear-gradient(bottom, var(--x-custom-background-color), var(--x-custom-content-active-background));
+        background: -webkit-linear-gradient(bottom, var(--x-custom-background-color), var(--x-custom-content-active-background));
+        border-top: solid 1px var(--x-custom-content-border-right-color);
+        border-bottom: solid 1px var(--x-custom-content-border-left-color);
+        border-right: solid 1px var(--x-custom-content-border-left-color);
+      }
+
+      .buttons {
+        line-height: 2em;
+      }
+      .buttons a.button {
+        cursor: pointer;
+        user-select: none;
+        background: -moz-linear-gradient(top, var(--x-custom-background-color), var(--x-custom-content-light-background));
+        background: -webkit-linear-gradient(top, var(--x-custom-background-color), var(--x-custom-content-light-background));
+        border-radius: 0.2em;
+        border-top: solid 0.1em var(--x-custom-content-border-left-color);
+        border-left: solid 0.1em var(--x-custom-content-border-left-color);
+        border-bottom: solid 0.1em var(--x-custom-content-border-right-color);
+        border-right: solid 0.1em var(--x-custom-content-border-right-color);
+        padding: 0.1em 0.4em;
+      }
+      .buttons a.button.down {
+        background: -moz-linear-gradient(bottom, var(--x-custom-background-color), var(--x-custom-content-active-background));
+        background: -webkit-linear-gradient(bottom, var(--x-custom-background-color), var(--x-custom-content-active-background));
+        border-top: solid 0.1em var(--x-custom-content-border-right-color);
+        border-left: solid 0.1em var(--x-custom-content-border-right-color);
+        border-bottom: solid 0.1em var(--x-custom-content-border-left-color);
+        border-right: solid 0.1em var(--x-custom-content-border-left-color);
+      }
+
+      .container {
+        padding-top: 0.2em;
+        padding-bottom: 0.5em;
+      }
+      .container .text {
+        padding-bottom: 0.2em;
+      }
+      .container .feedback textarea {
+        box-sizing: border-box;
+        width: 100%;
+        resize: none;
+        height: 12em;
+      }
+      .container .input input {
+        box-sizing: border-box;
+        width: 100%;
+      }
+      input[type=radio] {
+        vertical-align: top;
+      }
+    </style>
+
+    <script>
+      function doit(data) {
+        let ret = {};
+        for (let i=0; i<data.length; i++) {
+          if  ($('.scale .down',data[i]).length > 0) {
+            ret[$(data[i]).attr('id')] = $('.down',data[i]).attr('data-val');
+          } else if ($('.buttons .down',data[i]).length > 0) {
+            const dat = $('.buttons .button',data[i]);
+            ret[$(data[i]).attr('id')] = {};
+            for (let j=0; j<dat.length; j++) {
+              const d = $(dat[j]);
+              ret[$(data[i]).attr('id')][d.text()] = (d.hasClass('down')) ? true : false;
+            };
+          } else if ($('.feedback textarea',data[i]).length > 0) {
+            ret[$(data[i]).attr('id')] = $('.feedback textarea',data[i]).val();
+          } else if ($('.input input[type=text]',data[i]).length > 0) {
+            ret[$(data[i]).attr('id')] = $('.input input',data[i]).val();
+          } else if ($('.select input:radio',data[i]).length > 0) {
+            ret[$(data[i]).attr('id')] = $('.select input:checked',data[i]).val();
+          }
+        };
+        $.ajax({
+          type: "PUT",
+          url: window.name,
+          contentType: "application/json",
+          data: JSON.stringify(ret)
+        });
+      }
+
+      $(document).ready(function() {
+        cpee.data.forEach((ele,_) => {
+          if (ele.name.match(/^text_(.*)/)) {
+            let clone = document.importNode(document.querySelector('template#text').content,true);
+            $('.container',clone).attr('id',ele.name);
+            $('.text',clone).html(marked.parseInline(ele.value.replace(/\\n/g,'<br>')));
+            $('#content').append(clone);
+          } else if (ele.name.match(/^scale_(.*)/)) {
+            let clone = document.importNode(document.querySelector('template#scale').content,true);
+            $('.container',clone).attr('id',ele.name);
+            $('.text',clone).html(marked.parseInline(ele.value.replace(/\\n/g,'<br>')));
+            $('#content').append(clone);
+          } else if (ele.name.match(/^input_(.*)/)) {
+            let clone = document.importNode(document.querySelector('template#input').content,true);
+            $('.container',clone).attr('id',ele.name);
+            $('.text',clone).html(marked.parseInline(ele.value.replace(/\\n/g,'<br>')));
+            $('#content').append(clone);
+          } else if (ele.name.match(/^feedback_(.*)/)) {
+            let clone = document.importNode(document.querySelector('template#feedback').content,true);
+            $('.container',clone).attr('id',ele.name);
+            $('.text',clone).html(marked.parseInline(ele.value.replace(/\\n/g,'<br>')));
+            $('#content').append(clone);
+          } else if (ele.name.match(/^select_(.*)/)) {
+            let clone = document.importNode(document.querySelector('template#select').content,true);
+            $('.container',clone).attr('id',ele.name);
+            ele.value.split(';').forEach((o)=>{
+              o = o.trim();
+              o = marked.parseInline(o.replace(/\\n/g,'<br>'));
+              let opt = document.importNode(document.querySelector('template#option').content,true);
+              $('input',opt).attr('name',ele.name);
+              $('input',opt).attr('value',o);
+              $('input',opt).attr('id',o);
+              $('label',opt).text(o);
+              $('label',opt).attr('for',o);
+              $('.select',clone).append(opt);
+            });
+            $('#content').append(clone);
+          } else if (ele.name.match(/^buttons_(.*)/)) {
+            let clone = document.importNode(document.querySelector('template#buttons').content,true);
+            $('.container',clone).attr('id',ele.name);
+            ele.value.split(';').forEach((o)=>{
+              o = o.trim();
+              o = marked.parseInline(o.replace(/\\n/g,'<br>'));
+              let opt = document.importNode(document.querySelector('template#button').content,true);
+              $('.button',opt).text(o);
+              $('.buttons',clone).append(opt);
+            });
+            $('#content').append(clone);
+          }
+
+        });
+
+        $('.scale a.button').click(function() {
+          let n = $(this).parents('.container');
+          $('a.button',n).removeClass('down');
+          $(this).toggleClass("down")
+        });
+
+        $('.buttons a.button').click(function() {
+          let n = $(this).parents('.container');
+          $(this).toggleClass("down")
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <template id="text">
+      <div class='container' id=''>
+        <div class='text'></div>
+      </div>
+    </template>
+    <template id="scale">
+      <div class='container' id=''>
+        <div class='text'></div>
+        <div class='scale'><a class="button" data-val="2">++</a><a class="button" data-val="1">+</a><a class="button" data-val="0">0</a><a class="button" data-val="-1">-</a><a class="button" data-val="-2">--</a></div>
+      </div>
+    </template>
+    <template id="feedback">
+      <div class='container' id=''>
+        <div class='text'></div>
+        <div class='feedback'>
+          <textarea></textarea>
+        </div>
+      </div>
+    </template>
+    <template id="input">
+      <div class='container' id=''>
+        <div class='text'></div>
+        <div class='input'>
+          <input type="text"></input>
+        </div>
+      </div>
+    </template>
+    <template id="option">
+      <input type='radio' name='' value=''/><label for=""></label><br/>
+    </template>
+    <template id="select">
+      <div class='container' id=''>
+        <div class='select'></div>
+      </div>
+    </template>
+    <template id="button">
+      <a class='button'/>
+    </template>
+    <template id="buttons">
+      <div class='container' id=''>
+        <div class='buttons'></div>
+       </div>
+    </template>
+
+    <p id="content"></p>
+
+    <p>
+      <button onclick="doit($('.container'))" value="ok">Save & Continue</button>
+    </p>
+  </body>
+</html>

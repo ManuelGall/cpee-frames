@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>Button</title>
+    <script type="text/javascript" src="/js_libs/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/frames.js"></script>
+    <style>
+      :root {
+        --x-ui-outside-color: #000000;
+        --x-ui-border-color: #a1a1a1;
+
+        --x-ui-content-border-color: #ffed00;
+        --x-ui-content-light-background: #f0f0f0;
+        --x-ui-content-hover-background: #99cce660;
+
+        --x-frames-back: #ffffff;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: var(--x-frames-back);
+        height: 100vh;
+      }
+      div {
+        height: 100%;
+        padding: 1em;
+        box-sizing: border-box;
+      }
+      button {
+        height: 100%;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+    </style>
+    <script>
+      // you have access to cpee.data and cpee.callback, because frames.js (remote includable) fills it through postMessage
+    </script>
+
+  </head>
+  <body>
+    <div>
+      <button onclick="cpee_callback(cpee.callback,cpee.data)" value="ok">Measure</button>
+    </div>
+  </body>
+</html>
