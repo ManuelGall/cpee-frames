@@ -101,7 +101,7 @@ module CPEE
         file = File.read(path)
         data_hash = JSON::parse(file)
 
-        #check if new frame overlaps others if it does, delete overlapped frames
+        # check if new frame overlaps others if it does, delete overlapped frames
         data_hash["data"].each do | c |
           if CPEE::Frames::overlap?(c['lx'], c['ly'], c['rx'], c['ry'], @p[1].value.to_i, @p[2].value.to_i, (@p[1].value.to_i + @p[3].value.to_i - 1), (@p[2].value.to_i + @p[4].value.to_i - 1))
             data_hash["data"].delete(c)
@@ -109,29 +109,27 @@ module CPEE
         end
 
         #check if url is set
-        if @p[7].value != ""
-          urls = JSON::parse(@p[7].value);
+        if @p[5].value != ""
+          urls = JSON::parse(@p[5].value);
 
-          if @p[8].value == ""
-            hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: urls, showbutton: @p[5].value, style: @p[6].value, default: "{}", callback: @h['CPEE_CALLBACK']};
+          if @p[6].value == ""
+            hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: urls, default: "{}", callback: @h['CPEE_CALLBACK']};
           else
-            hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: urls, showbutton: @p[5].value,  style: @p[6].value, default: JSON::parse(@p[8].value), callback: @h['CPEE_CALLBACK']};
+            hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: urls, default: JSON::parse(@p[6].value), callback: @h['CPEE_CALLBACK']};
           end
 
-          data_hash["data"].push(hash)
+          data_hash['data'].push(hash)
           File.write(path, JSON.dump(data_hash))
 
-          #only send active url to client
+          # only send active url to client
           infofile = File.join(data_dir,@r.last,'info.json')
           infojson = JSON::parse(File.read(infofile))
           hash["url"] = urls.find{ |h| h['lang'] == infojson["lang"]}['url']
 
-
           @a[0].send(JSON.dump(hash))
         else
           File.write(path, JSON.dump(data_hash))
-          hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: "empty", showbutton: @p[5].value, style: @p[6].value, default: "{}", callback: @h['CPEE_CALLBACK']};
-
+          hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: "empty", default: "{}", callback: @h['CPEE_CALLBACK']};
 
           @a[0].send(JSON.dump(hash))
         end
@@ -147,37 +145,35 @@ module CPEE
         file = File.read(path)
         data_hash = JSON::parse(file)
 
-        #check if new frame overlaps others if it does, delete overlapped frames
+        # check if new frame overlaps others if it does, delete overlapped frames
         data_hash["data"].each do | c |
           if CPEE::Frames::overlap?(c['lx'], c['ly'], c['rx'], c['ry'], @p[1].value.to_i, @p[2].value.to_i, (@p[1].value.to_i + @p[3].value.to_i - 1), (@p[2].value.to_i + @p[4].value.to_i - 1))
             data_hash["data"].delete(c)
           end
         end
 
-
-        #check if url is set
-        if @p[7].value != ""
-          urls = JSON::parse(@p[7].value);
-          if @p[8].value == ""
-            hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: urls, showbutton: @p[5].value, style: @p[6].value, default: "{}", callback: @h['CPEE_CALLBACK']};
+        # check if url is set
+        if @p[5].value != ""
+          urls = JSON::parse(@p[5].value);
+          if @p[6].value == ""
+            hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: urls, default: "{}", callback: @h['CPEE_CALLBACK']};
           else
-            hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: urls, showbutton: @p[5].value, style: @p[6].value, default: JSON::parse(@p[8].value), callback: @h['CPEE_CALLBACK']};
+            hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: urls, default: JSON::parse(@p[6].value), callback: @h['CPEE_CALLBACK']};
           end
-          data_hash["data"].push(hash)
+          data_hash['data'].push(hash)
           File.write(path, JSON.dump(data_hash))
 
-          #only send active url to client
+          # only send active url to client
           infofile = File.join(data_dir,@r.last,'info.json')
           infojson = JSON::parse(File.read(infofile))
           hash["url"] = urls.find{ |h| h['lang'] == infojson["lang"]}['url']
 
           File.write(File.join(data_dir,@r.last,'callback'),@h['CPEE_CALLBACK'])
 
-
           @a[0].send(JSON.dump(hash))
         else
           File.write(path, JSON.dump(data_hash))
-          hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: "empty", showbutton: @p[5].value, style: @p[6].value, default: "{}", callback: @h['CPEE_CALLBACK']};
+          hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: "empty", default: "{}", callback: @h['CPEE_CALLBACK']};
 
           File.write(File.join(data_dir,@r.last,'callback'),@h['CPEE_CALLBACK'])
 
