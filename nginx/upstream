@@ -1,0 +1,3 @@
+upstream frames {
+  server localhost:8305 max_fails=0 fail_timeout=2s;
+}

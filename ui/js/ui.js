@@ -49,8 +49,11 @@ function makeFrame(lx, ly, rx, ry, content = "", id = "", defaultpara = "", show
     container.appendChild(cell);
 
     if(content != null && content != ""){
+      if (!/^https?:\/\//.test(content)) {
+        content = location.origin + content;
+      }
       let fullurl = encodeURI(content);
-      let iframe= $("<iframe style='height: 100%; width: 100%' src=\"" + fullurl + "\" id=\"" + id + "\" title='' frameBorder='0'></iframe>")[0];
+      let iframe = $("<iframe style='height: 100%; width: 100%' src=\"" + fullurl + "\" id=\"" + id + "\" title='' frameBorder='0'></iframe>")[0];
       iframe.onload = () => { iframe.contentWindow.postMessage({ data: defaultpara, callback: id }, fullurl); };
       $(".item" + lx + "-" + ly).html(iframe);
     } else{

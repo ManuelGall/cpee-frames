@@ -39,7 +39,6 @@ module CPEE
       return true
     end
 
-
     # https://coderwall.com/p/atyfyq/ruby-string-to-boolean
     # showbutton
     refine String do #{{{
@@ -212,7 +211,6 @@ module CPEE
         data_dir = @a[1]
         pp "in delete"
         if cbu = File.read(File.join(data_dir,@r.last,'callback'))
-          pp "XYZ"
           send = { 'operation' => @p[0].value }
           case send['operation']
             when 'result'
@@ -223,11 +221,11 @@ module CPEE
           Typhoeus.put(cbu, body: JSON::generate(send), headers: { 'content-type' => 'application/json'})
         end
 
-        #File.unlink(File.join(data_dir,@r.last,'callback')) rescue nil
-        #File.unlink(File.join(data_dir,@r.last,'cpeeinstance.url')) rescue nil
-        #File.unlink(File.join(data_dir,@r.last,'style.url')) rescue nil
-        #File.unlink(File.join(data_dir,@r.last,'document.xml')) rescue nil
-        #File.unlink(File.join(data_dir,@r.last,'info.json')) rescue nil
+        # File.unlink(File.join(data_dir,@r.last,'callback')) rescue nil
+        # File.unlink(File.join(data_dir,@r.last,'cpeeinstance.url')) rescue nil
+        # File.unlink(File.join(data_dir,@r.last,'style.url')) rescue nil
+        # File.unlink(File.join(data_dir,@r.last,'document.xml')) rescue nil
+        # File.unlink(File.join(data_dir,@r.last,'info.json')) rescue nil
 
         @a[0].send('reset')
         nil
@@ -243,7 +241,7 @@ module CPEE
           infofile = File.join(data_dir,@r[-2],'info.json')
           infojson = JSON::parse(File.read(infofile))
 
-          #remove not used languages
+          # remove not used languages
           file = JSON::parse(File.read(fname))
 
           file["data"].each do |child|
@@ -313,7 +311,7 @@ module CPEE
         fname = File.join(data_dir,@r[-2],'info.json')
         if File.exist? fname
           infojson = JSON::parse(File.read(fname))
-          Riddl::Parameter::Complex.new('value','application/json',infojson["langs"])
+          Riddl::Parameter::Complex.new('value','application/json',JSON::generate(infojson["langs"]))
         else
           @status = 404
         end
@@ -370,12 +368,6 @@ module CPEE
       end
     end #}}}
 
-    class OutputTest < Riddl::Implementation #{{{
-      def response
-        puts "Test"
-      end
-    end #}}}
-
     class Handler < Riddl::Implementation #{{{
       def response
         data_dir      = @a[1]
@@ -416,7 +408,7 @@ module CPEE
       end
     end #}}}
 
-    class SSE2 < Riddl::SSEImplementation #{{{
+    class SSE_Handler < Riddl::SSEImplementation #{{{
       def onopen
         signals = @a[0]
         signals.add self
@@ -494,7 +486,7 @@ module CPEE
             on resource 'handler' do
               run Handler, opts[:signals2]["handler"], opts[:data_dir] if post
               on resource 'sse' do
-                run SSE2, opts[:signals2]["handler"] if sse
+                run SSE_Handler, opts[:signals2]["handler"] if sse
               end
             end
 
@@ -508,20 +500,17 @@ module CPEE
               run GetLangs, opts[:data_dir] if get
               run SetLang, opts[:signals][idx], opts[:data_dir] if post 'lang'
             end
-            on resource 'style.url' do
-              run GetStyle, opts[:data_dir] if get
-            end
             on resource 'cpeeinstance.url' do
               run GetCpeeInstance, opts[:data_dir] if get
+            end
+            on resource 'style.url' do
+              run GetStyle, opts[:data_dir] if get
             end
             on resource 'info.json' do
               run GetInfo, opts[:data_dir] if get
             end
             on resource 'frames.json' do
               run GetFrames, opts[:data_dir] if get
-            end
-            on resource 'test' do
-              run OutputTest if put
             end
 
             on resource 'dataelements.json' do

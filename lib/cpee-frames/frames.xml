@@ -122,10 +122,6 @@
         <post />
       </resource>
 
-      <resource relative="test">
-        <put in="string"/>
-      </resource>
-
       <resource relative='handler'>
         <post />
         <resource relative='sse'>

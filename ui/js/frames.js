@@ -3,6 +3,7 @@ window.addEventListener("message", (event) => {
   if (/(tum\.de|cpee\.org)$/.test(event.origin)) {
     cpee.data = event.data.data;
     cpee.callback = event.data.callback;
+    $(document).trigger("cpee:message");
   }
 });
 

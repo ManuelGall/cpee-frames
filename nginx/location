@@ -1,0 +1,30 @@
+location ^~ /out/frames/js {
+}
+location ^~ /out/frames/css {
+}
+location ^~ /out/frames/examples {
+}
+location /out/frames/ {
+  proxy_connect_timeout 75s;
+  proxy_send_timeout 120s;
+  proxy_read_timeout 120s;
+  proxy_next_upstream error;
+  proxy_set_header X-Forwarded-Proto $scheme;
+  proxy_set_header X-Forwarded-Host $host;
+  proxy_set_header X-Forwarded-Prefix /out/frames/;
+  proxy_set_header X-Forwarded-For $remote_addr;
+  proxy_pass http://frames/;
+}
+location ~ ^/out/frames/[a-z0-9]+/sse/ {
+  rewrite /out/frames(/.*)$ $1 break;
+  proxy_connect_timeout 75s;
+  proxy_send_timeout 120s;
+  proxy_read_timeout 120s;
+  proxy_pass http://frames;
+
+  proxy_set_header Connection '';
+  proxy_http_version 1.1;
+  chunked_transfer_encoding off;
+  proxy_buffering off;
+  proxy_cache off;
+}
