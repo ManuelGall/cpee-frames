@@ -130,6 +130,7 @@
           <li>You have some fancy HTML site that serves as a template and wants to display oodles of data sent from the cpee</li>
           <li>Include https://cpee.org/out/frames/js/frames.js in your fancy HTML</li>
           <li>Access the data with <em>cpee.data</em>. Its JSON</li>
+          <li>Be careful. If you want to access the <em>cpee.data</em> you can only do so after the data is received. For jquery use <em>$(document).on('cpee:message',()=>{...})</em> instead of <em>$(document).ready(()=>{...})</em></li>
         </ul>
       </ul>
 
