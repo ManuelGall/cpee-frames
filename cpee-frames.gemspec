@@ -1,8 +1,8 @@
 Gem::Specification.new do |s|
   s.name             = "cpee-frames"
-  s.version          = "2.0.0"
+  s.version          = "2.0.1"
   s.platform         = Gem::Platform::RUBY
-  s.license          = "GPL-3.0"
+  s.license          = "GPL-3.0-or-later"
   s.summary          = "Dashboard management service with UI and backend for the cpee.org family of workflow management tools"
 
   s.description      = "Flexibly arrange and display user interface components in a grid from executable process models. Very useful if you want to build dashboards."
