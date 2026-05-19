@@ -1,0 +1,21 @@
+[Unit]
+Description=Frames
+PartOf=cpee.org.service
+After=cpee.org.service
+
+[Service]
+Slice=cpee.slice
+Type=forking
+User=demo
+WorkingDirectory=/home/demo/run/frames/
+PIDFile=/home/demo/run/frames/frames.pid
+ExecStart=/home/demo/run/frames/frames start
+ExecReload=/home/demo/run/frames/frames restart
+ExecStop=/home/demo/run/frames/frames stop
+TimeoutStopSec=30
+Restart=always
+RestartSec=3
+KillMode=mixed
+
+[Install]
+WantedBy=cpee.org.service
