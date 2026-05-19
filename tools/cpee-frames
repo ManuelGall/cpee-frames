@@ -47,14 +47,14 @@ exname = File.basename($0)
 
 ARGV.options { |opt|
   opt.summary_indent = ' ' * 2
-  opt.summary_width = 15
-  opt.banner = "Usage:\n#{opt.summary_indent}#{exname} new [DIR] | newui [DIR]\n"
+  opt.summary_width = 11
+  opt.banner = "Usage:\n#{opt.summary_indent}#{exname} new [DIR] | cpui [DIR]\n"
   opt.on("Options:")
   opt.on("--help", "-h", "This text") { puts opt; exit }
 	opt.on("")
-  opt.on(wrap("new [DIR]         scaffolds a sample logging service. Add a handler to a cpee instance to experience the pleasure.",78,18,0))
+  opt.on(wrap("new [DIR]     scaffolds a sample frames. It has built-in documentation.",78,14,0))
 	opt.on("")
-  opt.on(wrap("newui [DIR]       scaffolds css/js directors that are use by the UI into your webserver dir."))
+  opt.on(wrap("cpui [DIR]    scaffolds css/js directors that are use by the UI into your webserver dir.",78,14,0))
   opt.parse!
 }
 if (ARGV.length != 2)
@@ -72,7 +72,7 @@ if command == 'new'
   else
     puts 'Directory already exists.'
   end
-elsif command == 'newui'
+elsif command == 'cpui'
   if !File.exist?(dir)
     FileUtils.cp_r(File.join(curpath,'..','ui'),dir)
   else
