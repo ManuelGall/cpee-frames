@@ -37,6 +37,10 @@
     </style>
     <script>
       // you have access to cpee.data and cpee.callback, because frames.js (remote includable) fills it through postMessage
+
+      document.addEventListener('cpee:message', function (e) {
+        console.log(cpee.data);
+      }, false);
     </script>
 
   </head>

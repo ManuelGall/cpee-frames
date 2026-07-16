@@ -110,27 +110,22 @@ function init() {
     // load
   };
   es.onmessage = function(e) {
-    if (e.data == 'new') {
+    var notification;
+    try {
+      notification = JSON.parse(e.data);
+    } catch (err) {
+      return;
+    }
+    if (notification.message == 'new' || notification.message == 'reset') {
       reason = '';
       showDocument();
-    }
-    if (e.data == 'reset') {
-      reason = '';
-      showDocument();
-    }
-    else{
-      if(e.data == "update"){
-        alert("update")
-      }
-      if(e.data != "keepalive" && e.data != "started"){
-        try {
-          //alert(e.data)
-          var frd = JSON.parse(e.data)
-          makeFrame(frd.lx,frd.ly,frd.rx,frd.ry, frd.url, frd.callback, frd.default, frd.showbutton, frd.style);
-        }
-        catch (e) {
-        }
-      }
+    } else if (notification.message == 'display') {
+      var frd = notification.content;
+      makeFrame(frd.lx,frd.ly,frd.rx,frd.ry, frd.url, frd.callback, frd.default, frd.showbutton, frd.style);
+    } else if (notification.message == 'update') {
+      var frd = notification.content;
+      iframe = $('iframe[id="' + frd.callback + '"]').get(0);
+      iframe.contentWindow.postMessage({ data: frd.data });
     }
   };
   es.onerror = function() {

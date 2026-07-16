@@ -49,7 +49,6 @@
     <parameter name="ly" type="nonNegativeInteger"/>
     <parameter name="x_amount" type="nonNegativeInteger"/>
     <parameter name="y_amount" type="nonNegativeInteger"/>
-    <parameter name="urls" type="string"/>
     <parameter name="default" type="string"/>
   </message>
   <message name="deleteframe">

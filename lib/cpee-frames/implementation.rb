@@ -27,7 +27,7 @@ module CPEE
 
   module Frames
 
-    SERVER = File.expand_path(File.join(__dir__,'frames.xml'))
+    SERVER = File.expand_path(File.join(__dir__,'implementation.xml'))
 
     def self::overlap?(l1x, l1y, r1x, r1y, l2x, l2y, r2x, r2y)
       if l1x > r2x || l2x > r1x
@@ -92,7 +92,7 @@ module CPEE
         File.write(File.join(data_dir,@r.last,'callback'),@h['CPEE_CALLBACK'])
         File.write(File.join(data_dir,@r.last,'cpeeinstance.url'),@h['CPEE_INSTANCE_URL'])
 
-        @a[0].send('new')
+        @a[0].send(JSON.dump({ message: 'new' }))
         nil
       end
     end #}}}
@@ -129,12 +129,12 @@ module CPEE
           infojson = JSON::parse(File.read(infofile))
           hash["url"] = urls.find{ |h| h['lang'] == infojson["lang"]}['url']
 
-          @a[0].send(JSON.dump(hash))
+          @a[0].send(JSON.dump({ message: 'display', content: hash }))
         else
           File.write(path, JSON.dump(data_hash))
           hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: "empty", default: "{}", callback: @h['CPEE_CALLBACK']};
 
-          @a[0].send(JSON.dump(hash))
+          @a[0].send(JSON.dump({ message: 'display', content: hash }))
         end
 
         nil
@@ -173,7 +173,7 @@ module CPEE
 
           File.write(File.join(data_dir,@r.last,'callback'),@h['CPEE_CALLBACK'])
 
-          @a[0].send(JSON.dump(hash))
+          @a[0].send(JSON.dump({ message: 'display', content: hash }))
         else
           File.write(path, JSON.dump(data_hash))
           hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: "empty", default: "{}", callback: @h['CPEE_CALLBACK']};
@@ -181,7 +181,7 @@ module CPEE
           File.write(File.join(data_dir,@r.last,'callback'),@h['CPEE_CALLBACK'])
 
 
-          @a[0].send(JSON.dump(hash))
+          @a[0].send(JSON.dump({ message: 'display', content: hash }))
 
           Typhoeus.put(@h['CPEE_CALLBACK'], body: "No Frame Set")
         end
@@ -203,21 +203,11 @@ module CPEE
         # check if new frame overlaps others if it does, delete overlapped frames
         data_hash["data"].each do | c |
           if CPEE::Frames::target?(c['lx'], c['ly'], c['rx'], c['ry'], @p[1].value.to_i, @p[2].value.to_i, (@p[1].value.to_i + @p[3].value.to_i - 1), (@p[2].value.to_i + @p[4].value.to_i - 1))
-            data_hash["data"].delete(c)
+            @a[0].send(JSON.dump({ message: 'update', content: { 'callback' => c['callback'], 'data' => @p[5].value.strip == '' ? {} : JSON::parse(@p[5].value) }}))
           end
         end
 
-        if @p[6].value == ""
-          hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: urls, default: "{}"};
-        else
-          hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: urls, default: JSON::parse(@p[6].value)};
-        end
-
-        @a[0].send(JSON.dump(hash))
         nil
-      end
-      def headers
-        Riddl::Header.new('CPEE-CALLBACK', 'true')
       end
     end #}}}
 
@@ -259,7 +249,7 @@ module CPEE
         # File.unlink(File.join(data_dir,@r.last,'document.xml')) rescue nil
         # File.unlink(File.join(data_dir,@r.last,'info.json')) rescue nil
 
-        @a[0].send('reset')
+        @a[0].send(JSON.dump({ message: 'reset' }))
         nil
       end
     end #}}}
@@ -368,7 +358,7 @@ module CPEE
 
 
 
-          @a[0].send('reset')
+          @a[0].send(JSON.dump({ message: 'reset' }))
           nil
         else
           @status = 404
@@ -420,7 +410,7 @@ module CPEE
           File.write(path, JSON.dump(content['values']))
         end
 
-        @a[0].send(@r[0])
+        @a[0].send(JSON.dump({ message: @r[0] }))
         nil
       end
     end #}}}
@@ -429,7 +419,7 @@ module CPEE
       def onopen
         signals = @a[0]
         signals.add self
-        send 'started'
+        send JSON.dump({ message: 'started' })
         true
       end
 
@@ -444,7 +434,7 @@ module CPEE
       def onopen
         signals = @a[0]
         signals.add self
-        send 'started'
+        send JSON.dump({ message: 'started' })
         true
       end
 
@@ -486,10 +476,10 @@ module CPEE
         parallel do
           loop do
             opts[:signals].each do |k,v|
-              v.send('keepalive')
+              v.send(JSON.dump({ message: 'keepalive' }))
             end
             opts[:signals2].each do |k,v|
-              v.send('keepalive')
+              v.send(JSON.dump({ message: 'keepalive' }))
             end
             sleep 5
           end
