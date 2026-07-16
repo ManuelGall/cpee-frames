@@ -43,6 +43,15 @@
     <parameter name="urls" type="string"/>
     <parameter name="default" type="string"/>
   </message>
+  <message name="uframe">
+    <parameter name="type" fixed="send"/>
+    <parameter name="lx" type="nonNegativeInteger"/>
+    <parameter name="ly" type="nonNegativeInteger"/>
+    <parameter name="x_amount" type="nonNegativeInteger"/>
+    <parameter name="y_amount" type="nonNegativeInteger"/>
+    <parameter name="urls" type="string"/>
+    <parameter name="default" type="string"/>
+  </message>
   <message name="deleteframe">
     <parameter name="lx" type="string"/>
     <parameter name="ly" type="string"/>
@@ -92,6 +101,8 @@
       <put in='wframe' out="callback"/>
       <!-- Set Frame Data without callback -->
       <put in='sframe'/>
+      <!-- Send Data to existing Frame -->
+      <put in='uframe'/>
 
       <post in='deleteframe'/>
 

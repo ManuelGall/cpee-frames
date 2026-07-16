@@ -39,6 +39,10 @@ module CPEE
       return true
     end
 
+    def self::target?(l1x, l1y, r1x, r1y, l2x, l2y, r2x, r2y)
+      return l1x == l2x && l1y == l2y && r1x == r2x && r1y == r2y
+    end
+
     # https://coderwall.com/p/atyfyq/ruby-string-to-boolean
     # showbutton
     refine String do #{{{
@@ -93,7 +97,7 @@ module CPEE
       end
     end #}}}
 
-    class NewFrameSet < Riddl::Implementation
+    class NewFrameSet < Riddl::Implementation #{{{
       def response
         data_dir = @a[1]
         path = File.join(data_dir,@r.last,'frames.json')
@@ -135,9 +139,9 @@ module CPEE
 
         nil
       end
-    end
+    end #}}}
 
-    class NewFrameWait < Riddl::Implementation
+    class NewFrameWait < Riddl::Implementation #{{{NewFrameWait
       def response
         data_dir = @a[1]
         path = File.join(data_dir,@r.last,'frames.json')
@@ -187,9 +191,37 @@ module CPEE
       def headers
         Riddl::Header.new('CPEE-CALLBACK', 'true')
       end
-    end
+    end #}}}
 
-    class DeleteFrame < Riddl::Implementation
+    class SendDataToFrame < Riddl::Implementation #{{{NewFrameWait
+      def response
+        data_dir = @a[1]
+        path = File.join(data_dir,@r.last,'frames.json')
+        file = File.read(path)
+        data_hash = JSON::parse(file)
+
+        # check if new frame overlaps others if it does, delete overlapped frames
+        data_hash["data"].each do | c |
+          if CPEE::Frames::target?(c['lx'], c['ly'], c['rx'], c['ry'], @p[1].value.to_i, @p[2].value.to_i, (@p[1].value.to_i + @p[3].value.to_i - 1), (@p[2].value.to_i + @p[4].value.to_i - 1))
+            data_hash["data"].delete(c)
+          end
+        end
+
+        if @p[6].value == ""
+          hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: urls, default: "{}"};
+        else
+          hash = {lx: @p[1].value.to_i, ly: @p[2].value.to_i, rx: (@p[1].value.to_i + @p[3].value.to_i - 1), ry: (@p[2].value.to_i + @p[4].value.to_i - 1), url: urls, default: JSON::parse(@p[6].value)};
+        end
+
+        @a[0].send(JSON.dump(hash))
+        nil
+      end
+      def headers
+        Riddl::Header.new('CPEE-CALLBACK', 'true')
+      end
+    end #}}}
+
+    class DeleteFrame < Riddl::Implementation #{{{
       def response
         data_dir = @a[1]
         path = File.join(data_dir,@r.last,'frames.json')
@@ -204,9 +236,9 @@ module CPEE
 
         File.write(path, JSON.dump(data_hash))
       end
-    end
+    end #}}}
 
-    class Delete < Riddl::Implementation
+    class Delete < Riddl::Implementation #{{{
       def response
         data_dir = @a[1]
         pp "in delete"
@@ -230,7 +262,7 @@ module CPEE
         @a[0].send('reset')
         nil
       end
-    end
+    end #}}}
 
     class GetFrames < Riddl::Implementation #{{{
       def response
@@ -480,6 +512,7 @@ module CPEE
 
             run NewFrameSet, opts[:signals][idx], opts[:data_dir] if put 'sframe'
             run NewFrameWait, opts[:signals][idx], opts[:data_dir] if put 'wframe'
+            run SendDataToFrame, opts[:signals][idx], opts[:data_dir] if put 'uframe'
 
             run DeleteFrame, opts[:signals][idx], opts[:data_dir] if post 'deleteframe'
 
