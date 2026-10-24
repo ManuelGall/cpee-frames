@@ -114,6 +114,7 @@ function init() {
     try {
       notification = JSON.parse(e.data);
     } catch (err) {
+      console.log(err);
       return;
     }
     if (notification.message == 'new' || notification.message == 'reset') {
@@ -125,7 +126,7 @@ function init() {
     } else if (notification.message == 'update') {
       var frd = notification.content;
       iframe = $('iframe[id="' + frd.callback + '"]').get(0);
-      iframe.contentWindow.postMessage({ data: frd.data });
+      iframe.contentWindow.postMessage({ data: frd.data },'*');
     }
   };
   es.onerror = function() {
