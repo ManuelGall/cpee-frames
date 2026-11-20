@@ -22,4 +22,5 @@ Gem::Specification.new do |s|
 
   s.add_runtime_dependency 'riddl', '~> 0.99'
   s.add_runtime_dependency 'json', '~> 2.1'
+  s.add_runtime_dependency 'typhoeus', '~> 1.4'
 end

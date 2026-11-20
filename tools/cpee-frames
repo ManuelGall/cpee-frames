@@ -20,10 +20,6 @@ curpath = __dir__
 require 'rubygems'
 require 'optparse'
 require 'fileutils'
-require 'xml/smart'
-require 'yaml'
-require 'typhoeus'
-require 'stringio'
 
 def wrap(s, width=78, indent=18, extra_indent=4) #{{{
 	lines = []

@@ -18,9 +18,7 @@
 
 require 'rubygems'
 require 'json'
-require 'xml/smart'
 require 'riddl/server'
-require 'fileutils'
 require 'typhoeus'
 
 module CPEE
