@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name             = "cpee-frames"
-  s.version          = "2.0.3"
+  s.version          = "2.0.4"
   s.platform         = Gem::Platform::RUBY
   s.license          = "GPL-3.0-or-later"
   s.summary          = "Dashboard management service with UI and backend for the cpee.org family of workflow management tools"
