@@ -39,11 +39,6 @@ function makeFrame(lx, ly, rx, ry, content = "", id = "", defaultpara = "", show
       spanrow = " / span " + (ry-ly+1);
     }
 
-    jQuery.cssNumber.gridColumnStart = true;
-    jQuery.cssNumber.gridColumnEnd = true;
-    jQuery.cssNumber.gridRowStart = true;
-    jQuery.cssNumber.gridRowEnd = true;
-
     $(cell).css({"grid-column": (lx+1) + spancol,  "grid-row": ly+1 + spanrow});
 
     container.appendChild(cell);
